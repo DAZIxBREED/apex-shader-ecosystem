@@ -4,7 +4,7 @@
 
 Apex Fog supplies inexpensive transparent atmosphere cards for haze, smoke, localized fog, and stage-volume accents in VRChat worlds.
 
-## 0.2.0 implementation
+## 0.3.0 implementation
 
 - `Apex/Fog/CardLite` with two animated noise layers.
 - Authored mask, vertex color, distance fade, height fade, and view-angle edge fade.

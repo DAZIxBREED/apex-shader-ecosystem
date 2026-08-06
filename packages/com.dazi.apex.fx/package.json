@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.fx",
   "displayName": "Apex FX",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
-  "description": "Hologram effect shader with scanlines, flicker, Fresnel, masked emission, lightweight vertex glitch, and SpectraOverdrive control.",
+  "description": "Lit dissolve and hologram effect shaders with packed surfaces, edge emission, scanlines, flicker, Fresnel, vertex effects, quality tiers, and SpectraOverdrive control.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.2.0",
-    "com.dazi.apex.spectraoverdrive": "0.2.0"
+    "com.dazi.apex.core": "0.3.0",
+    "com.dazi.apex.spectraoverdrive": "0.3.0"
   }
 }

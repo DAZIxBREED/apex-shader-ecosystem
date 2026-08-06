@@ -3,11 +3,11 @@
 Transparent atmospheric card shader.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **Windows PCVR/Desktop, Android/Quest worlds, and iOS worlds; profile fill rate**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Two scrolling noise samples
 - Authored shape mask and vertex tint

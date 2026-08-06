@@ -29,4 +29,29 @@ inline half ApexScreenVignette(half2 uv, half strength, half softness)
     return 1.0h - smoothstep(1.0h - softness, 1.0h, edge) * strength;
 }
 
+inline half2 ApexScreenPixelCenterUV(half2 uv, half2 pixelCount)
+{
+    half2 count = max(pixelCount, half2(1.0h, 1.0h));
+    return (floor(uv * count) + 0.5h) / count;
+}
+
+inline half ApexScreenPixelAperture(half2 uv, half2 pixelCount, half gap)
+{
+    half2 cell = frac(uv * max(pixelCount, half2(1.0h, 1.0h)));
+    half2 edgeDistance = min(cell, 1.0h - cell);
+    half safeGap = saturate(gap) * 0.5h;
+    return step(safeGap, edgeDistance.x) * step(safeGap, edgeDistance.y);
+}
+
+inline half3 ApexScreenRGBSubpixelMask(half2 uv, half2 pixelCount, half strength)
+{
+    half phase = frac(uv.x * max(pixelCount.x, 1.0h));
+    half3 stripe = half3(
+        1.0h - step(0.3333h, phase),
+        step(0.3333h, phase) * (1.0h - step(0.6667h, phase)),
+        step(0.6667h, phase)
+    );
+    return lerp(half3(1.0h, 1.0h, 1.0h), stripe * 3.0h, saturate(strength));
+}
+
 #endif

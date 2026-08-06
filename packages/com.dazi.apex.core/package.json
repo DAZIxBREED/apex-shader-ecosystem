@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.core",
   "displayName": "Apex Core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
-  "description": "Shared handwritten HLSL foundation with stereo/instancing support, packed surfaces, baked GI, forward lighting, shadows, platform helpers, and debug views.",
+  "description": "Shared handwritten HLSL foundation with bounded quality tiers, reflection-probe environment lighting, stereo/instancing support, packed surfaces, baked GI, forward lighting, shadows, platform helpers, and debug views.",
   "author": {
     "name": "DAZIxBREED"
   },

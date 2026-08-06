@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.spectraoverdrive",
   "displayName": "Apex SpectraOverdrive Bridge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
-  "description": "Apex-native SpectraOverdrive bridge with color, intensity, beat, blackout, strobe, four bands, broadcast/group routing, and safe neutral defaults.",
+  "description": "Versioned Apex-native SpectraOverdrive shader ABI with Unity and Udon-safe globals, color/intensity/beat/strobe/bands, routing, blackout, and bounded safety controls.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -19,6 +19,6 @@
     "PCVR"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.2.0"
+    "com.dazi.apex.core": "0.3.0"
   }
 }

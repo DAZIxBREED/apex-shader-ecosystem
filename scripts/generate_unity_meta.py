@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Generate stable Unity .meta files for all package assets and directories."""
+"""Generate stable Unity .meta files for package and validation-project assets."""
 from __future__ import annotations
 import hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ROOT / "packages"
+VALIDATION_ASSETS = ROOT / "ValidationProject" / "Assets"
 
 
 def guid_for(path: Path) -> str:
@@ -25,9 +26,13 @@ def meta_text(path: Path) -> str:
 
 
 def main() -> int:
-    for package in sorted(p for p in PACKAGES.iterdir() if p.is_dir()):
+    roots = sorted((p for p in PACKAGES.iterdir() if p.is_dir()), key=lambda p: p.as_posix())
+    if VALIDATION_ASSETS.exists():
+        roots.append(VALIDATION_ASSETS)
+
+    for root in roots:
         assets = sorted(
-            (p for p in package.rglob("*") if not p.name.endswith(".meta")),
+            (p for p in root.rglob("*") if not p.name.endswith(".meta")),
             key=lambda p: (len(p.parts), p.as_posix()),
         )
         for asset in assets:

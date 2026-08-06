@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.screens",
   "displayName": "Apex Screens",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
-  "description": "Video-player-oriented _MainTex screen shader with UV controls, grading, gamma, scanlines, vignette, emission, and SpectraOverdrive control.",
+  "description": "Video and procedural LED screen shaders using _MainTex compatibility, grading, scanlines, vignette, configurable pixel apertures, emission, and SpectraOverdrive control.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.2.0",
-    "com.dazi.apex.spectraoverdrive": "0.2.0"
+    "com.dazi.apex.core": "0.3.0",
+    "com.dazi.apex.spectraoverdrive": "0.3.0"
   }
 }

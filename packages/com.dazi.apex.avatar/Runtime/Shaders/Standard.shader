@@ -10,6 +10,8 @@ Shader "Apex/Avatar/Standard"
         _Metallic("Metallic", Range(0,1)) = 0
         _Glossiness("Smoothness", Range(0,1)) = 0.5
         _OcclusionStrength("Occlusion Strength", Range(0,1)) = 1
+        [KeywordEnum(Standard,Mobile,High)] _APEX_QUALITY("Apex Quality Profile", Float) = 0
+        _EnvironmentStrength("Reflection Probe Strength", Range(0,2)) = 0.75
         [HDR] _EmissionColor("Emission Color", Color) = (0,0,0,0)
 
         [Toggle] _AlphaClip("Alpha Clip", Float) = 0
@@ -45,11 +47,14 @@ Shader "Apex/Avatar/Standard"
             #pragma multi_compile_fwdbase
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
+            #pragma shader_feature_local _ _APEX_QUALITY_STANDARD _APEX_QUALITY_MOBILE _APEX_QUALITY_HIGH
 
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Packing.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Surface.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Lighting.cginc"
+            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Quality.cginc"
+            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Environment.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Debug.cginc"
             #include "Packages/com.dazi.apex.spectraoverdrive/Runtime/HLSL/ApexSpectraOverdrive_Bridge.cginc"
             #include "Packages/com.dazi.apex.avatar/Runtime/HLSL/ApexAvatar_Surface.cginc"
@@ -65,6 +70,7 @@ Shader "Apex/Avatar/Standard"
             half _Metallic;
             half _Glossiness;
             half _OcclusionStrength;
+            half _EnvironmentStrength;
             half _AlphaClip;
             half _Cutoff;
             half _WrapAmount;
@@ -95,6 +101,7 @@ Shader "Apex/Avatar/Standard"
                 UNITY_LIGHT_ATTENUATION(attenuation, i, i.worldPos);
                 ApexLightingData lighting = ApexBuildLight(i, surface, attenuation, 1.0h);
                 half3 color = ApexAvatarBaseLighting(surface, lighting, _WrapAmount, _WrapColor.rgb);
+                color += ApexSampleEnvironmentReflection(surface, lighting, i.worldPos, _EnvironmentStrength);
                 color += surface.emission;
                 color = ApexAvatarFinish(
                     color, surface, lighting,

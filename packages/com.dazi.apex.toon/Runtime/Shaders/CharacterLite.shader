@@ -8,6 +8,8 @@ Shader "Apex/Toon/CharacterLite"
         _BumpScale("Normal Scale", Range(0,2)) = 1
         _MetallicGlossMap("Mask: G AO, B Effect", 2D) = "white" {}
         _OcclusionStrength("Occlusion Strength", Range(0,1)) = 1
+        [KeywordEnum(Standard,Mobile,High)] _APEX_QUALITY("Apex Quality Profile", Float) = 0
+        _EnvironmentStrength("Reflection Probe Strength", Range(0,1)) = 0.25
         [HDR] _EmissionColor("Emission Color", Color) = (0,0,0,0)
         _Bands("Lighting Bands", Range(1,5)) = 3
         _ShadowThreshold("Shadow Threshold", Range(0,1)) = 0.5
@@ -43,11 +45,14 @@ Shader "Apex/Toon/CharacterLite"
             #pragma multi_compile_fwdbase
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
+            #pragma shader_feature_local _ _APEX_QUALITY_STANDARD _APEX_QUALITY_MOBILE _APEX_QUALITY_HIGH
 
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Packing.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Surface.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Lighting.cginc"
+            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Quality.cginc"
+            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Environment.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Debug.cginc"
             #include "Packages/com.dazi.apex.spectraoverdrive/Runtime/HLSL/ApexSpectraOverdrive_Bridge.cginc"
             #include "Packages/com.dazi.apex.toon/Runtime/HLSL/ApexToon_Surface.cginc"
@@ -61,6 +66,7 @@ Shader "Apex/Toon/CharacterLite"
             half4 _RimColor;
             half _BumpScale;
             half _OcclusionStrength;
+            half _EnvironmentStrength;
             half _Bands;
             half _ShadowThreshold;
             half _ShadowSoftness;
@@ -96,6 +102,7 @@ Shader "Apex/Toon/CharacterLite"
                     _ShadowColor.rgb,
                     _SpecularSize, _SpecularIntensity
                 );
+                color += ApexSampleEnvironmentReflection(surface, lighting, i.worldPos, _EnvironmentStrength);
                 color = ApexToonFinish(
                     color, surface, lighting,
                     _RimColor.rgb, _RimPower, _RimIntensity,

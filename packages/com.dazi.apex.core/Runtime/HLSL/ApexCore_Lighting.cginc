@@ -1,6 +1,8 @@
 #ifndef APEX_CORE_LIGHTING_INCLUDED
 #define APEX_CORE_LIGHTING_INCLUDED
 
+#include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Surface.cginc"
+
 inline half3 ApexSampleBakedGI(ApexVaryings i, half3 normalWS)
 {
 #if defined(LIGHTMAP_ON)

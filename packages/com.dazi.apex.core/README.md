@@ -3,11 +3,11 @@
 Shared handwritten HLSL foundation.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **Windows PCVR/Desktop and mobile world shader support through dependent packages**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Stereo/instancing-aware lit and unlit vertex paths
 - Correct tangent basis and normal scaling
@@ -15,6 +15,7 @@ Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragm
 - Baked lightmap or SH ambient GI
 - Forward direct, ambient, additional-light, toon, wrap, and rim functions
 - Shadow caster helpers, platform gates, fog, color/math helpers, and debug views
+- Mobile/Standard/High quality tiers and reflection-probe environment specular
 
 ## Dependencies
 

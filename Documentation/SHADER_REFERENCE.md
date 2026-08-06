@@ -1,64 +1,62 @@
-# Apex 0.2.0 Shader Reference
+# Apex 0.3.0 Shader Reference
 
-This reference describes the current baseline shaders. Property names are part of the 0.2 development contract and may still change before 1.0.
+Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is now separately versioned and frozen at 1.0.
 
 | Shader | Intended use | Passes | Unique samplers | Target |
 |---|---|---:|---:|---:|
 | `Apex/Core/Debug` | UV/vertex diagnostic display | 1 | 1 | 2.0 |
 | `Apex/Avatar/Standard` | PCVR/Desktop avatar materials | 3 | 3 | 3.0 |
 | `Apex/World/Standard` | Opaque/cutout environment PBR | 4 | 3 default, 4 with detail | 3.0 |
+| `Apex/World/VertexBlendLite` | Two-layer vertex-red environment blend | 4 | 6 | 3.0 |
 | `Apex/Water/PoolLite` | Transparent pools/liquids | 1 | 3 | 3.0 |
+| `Apex/Water/OpaqueMobile` | Opaque low-overdraw water | 2 | 3 | 3.0 |
 | `Apex/Fog/CardLite` | Transparent fog/haze cards | 1 | 2 | 2.0 |
 | `Apex/FX/HologramLite` | Additive hologram effects | 1 | 2 | 3.0 |
+| `Apex/FX/DissolveCutout` | Lit cutout dissolve with edge emission | 4 | 4 | 3.0 |
 | `Apex/Screens/VideoPanelLite` | Opaque video and emissive panels | 1 | 1 | 2.0 |
+| `Apex/Screens/LEDPanelLite` | Procedural LED/pixel-grid video panel | 1 | 1 | 2.0 |
 | `Apex/Toon/CharacterLite` | Stylized world/PC material shading | 2 | 3 | 3.0 |
 
-## Shared packed mask
+## Quality profiles
 
-Apex packed material textures use:
+World, Avatar, Toon, Vertex Blend, and Dissolve materials use mutually exclusive local keywords:
+
+- no quality keyword: **Standard**
+- `_APEX_QUALITY_MOBILE`: disables environment reflection sampling
+- `_APEX_QUALITY_HIGH`: enables the high specular-energy path
+
+Use **Apex > Materials > Quality** rather than changing keywords by hand. Mobile builds strip High variants automatically.
+
+## Shared packed mask
 
 - **R:** metallic
 - **G:** ambient occlusion
 - **B:** effect/SpectraOverdrive mask
 - **A:** smoothness
 
-Create this texture with **Apex > Texture Tools > Packed Mask Builder**.
+Create it with **Apex > Texture Tools > Packed Mask Builder**.
 
-## Shared SpectraOverdrive properties
+## SpectraOverdrive
 
-Visual shaders expose:
+Visual shaders expose `_SpectraAmount`, `_SpectraGroup`, and `_SpectraBandWeights`. Drivers use ordinary `_ApexSpectra...` globals or `_UdonApexSpectra...` globals in VRChat.
 
-- `_SpectraAmount`
-- `_SpectraGroup`
-- `_SpectraBandWeights`
+ABI 1.0 adds optional safety controls:
 
-The global bridge accepts intensity, color, four bands, beat, blackout, strobe, group ID, and show time. A local group of `0` listens as a broadcast group.
+| Field | Meaning |
+|---|---|
+| `_ApexSpectraSafetyActive` / `_UdonApexSpectraSafetyActive` | Enables the safety vector. |
+| `_ApexSpectraSafety` / `_UdonApexSpectraSafety` X | Maximum accepted intensity. |
+| Y | Strobe enabled when `>= 0.5`. |
+| Z | Maximum accepted strobe pulse. |
+| W | Reserved; write zero. |
 
-Use `_ApexSpectra...` names with ordinary Unity `Shader.SetGlobal*`. In VRChat/Udon, use the corresponding `_UdonApexSpectra...` names and set `_UdonApexSpectraActive` to `1`; VRChat only permits user-defined `VRCShader.SetGlobal` names with the `_Udon` prefix. The integration package follows the same pattern with `_UdonApexIntegrationActive`.
-
-| VRChat/Udon global | Type | Meaning |
-|---|---|---|
-| `_UdonApexSpectraActive` | float | Set to `1` while the Udon adapter owns the bridge. |
-| `_UdonApexSpectraIntensity` | float | Master reactive intensity. |
-| `_UdonApexSpectraColor` | vector/color | Show color. |
-| `_UdonApexSpectraBands` | vector | Four normalized bands. |
-| `_UdonApexSpectraBeat` | float | Beat pulse. |
-| `_UdonApexSpectraBlackout` | float | `1` suppresses Spectra-controlled output. |
-| `_UdonApexSpectraStrobe` | float | Strobe pulse input. |
-| `_UdonApexSpectraGroupId` | float | Active exact group; `0` is broadcast. |
-| `_UdonApexSpectraTime` | float | Optional synchronized show time. |
-
-Optional integrations use `_UdonApexAudioBands`, `_UdonApexAudioAmplitude`, `_UdonApexLightVolumeColor`, `_UdonApexLTCGIColor`, and `_UdonApexVRSLColor`. Set `_UdonApexIntegrationActive` to `1` while those values are owned by an Udon adapter.
+See the full [ABI document](../packages/com.dazi.apex.spectraoverdrive/Documentation/ABI.md).
 
 ## Avatar platform rule
 
-`Apex/Avatar/Standard` is a custom PC shader. For a VRChat Android, Quest, or iOS avatar, create a second material with **Apex > Mobile Avatar Fallback Builder** and assign the generated SDK-provided `VRChat/Mobile` material to the mobile avatar variant.
-
-The Avatar and Toon baselines deliberately expose `_MainTex`, `_Color`, `_BumpMap`, `_BumpScale`, `_MetallicGlossMap`, `_Metallic`, and `_Glossiness` where applicable. They also declare the exact `VRCFallback="toonstandard"` tag so supported same-named values can survive VRChat shader fallback instead of dropping to unrelated defaults.
+`Apex/Avatar/Standard` is a custom PC shader. Use **Apex > Mobile Avatar** tools to generate SDK-provided `VRChat/Mobile` materials for Android, Quest, and iOS avatar variants. Batch generation writes `.apex-mobile-pairing.json` records beside the generated material.
 
 ## Debug modes
-
-Shaders that expose `_DebugMode` use:
 
 | Value | View |
 |---:|---|

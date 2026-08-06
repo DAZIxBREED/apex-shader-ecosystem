@@ -3,11 +3,11 @@
 Mobile-conscious pool water shader.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **Windows PCVR/Desktop, Android/Quest worlds, and iOS worlds**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Dual scrolling normal layers
 - Authored depth tint mask
@@ -15,6 +15,7 @@ Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragm
 - Foam/effect mask
 - Transparent lighting and fog
 - SpectraOverdrive group/band routing
+- `Apex/Water/OpaqueMobile` for low-overdraw mobile water
 
 ## Dependencies
 

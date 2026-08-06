@@ -1,19 +1,19 @@
 # Repository Status
 
-**Version:** 0.2.0
+**Version:** 0.3.0
 **Maturity:** Pre-alpha implementation
 **Unity baseline:** 2022.3.22f1, Built-in Render Pipeline
 
 ## Implemented
 
-- Twelve independent UPM packages with deterministic Unity metadata.
-- Shared handwritten HLSL for stereo/instancing, tangent-space normals, packed PBR inputs, baked GI/lightmaps, forward lighting, attenuation/shadows, fog, platform helpers, and debug output.
-- Distinct Avatar, World, Water, Fog, Hologram, Screen, and Toon shader behavior.
-- SpectraOverdrive intensity/color/beat/blackout/strobe/band/group bridge with neutral defaults and dual Unity/VRChat-safe `_Udon` global inputs.
-- Generic optional integration globals for audio, light-volume, LTCGI-style, and VRSL-style drivers, including `_Udon`-prefixed VRChat inputs.
-- PC avatar/toon fallback metadata using Standard-compatible property names and exact `toonstandard` tags, plus an editor generator for SDK-approved mobile fallback materials.
-- Packed mask texture authoring tool and project/material validation tool with imported shader, texture-import, transparency, instancing, and platform checks.
-- Static monorepo validation, Package Manager sample exposure, pinned Git/UPM installation documentation, and deterministic package archives.
+- Twelve independent UPM packages with deterministic Unity metadata and release archives.
+- Shared handwritten HLSL for packed surfaces, lightmaps/SH, forward lighting, shadows, fog, stereo/instancing, reflection probes, and local Mobile/Standard/High quality tiers.
+- Twelve ShaderLab shaders across Core, Avatar, World, Water, Fog, FX, Screens, and Toon, including second focused families for World, Water, FX, and Screens.
+- SpectraOverdrive ABI 1.0 with Unity and `_Udon` globals, routing, four bands, blackout, and optional intensity/strobe safety limits.
+- Dependency-free optional integration globals plus an editor monitor for live Unity/Udon values.
+- PC character fallback metadata, batch SDK mobile-material generation, and machine-readable source/fallback pairing records.
+- Material quality profiles, Avatar look presets, packed-mask authoring, project/material validation, variant stripping, and variant usage reports.
+- Dedicated local-package Unity validation project and automated scene builder.
 
 ## Platform contract
 
@@ -25,9 +25,8 @@
 
 ## Not yet proven
 
-- Unity batch compilation of every shader variant.
-- VRChat SDK build validation on all three build targets.
+- Unity batch compilation of every pass and variant on each target graphics API.
+- VRChat SDK build/upload validation.
+- Correct single-pass stereo on device.
 - On-device performance and visual parity measurements.
-- All package roadmap families; 0.2.0 still supplies one production-oriented baseline per visual package rather than every planned shader.
-
-No unsupported platform claim should be inferred from package naming alone.
+- Remaining roadmap families such as depth-intersection fog/water, toon outlines, shields, portals, terrain, and advanced avatar hair/skin shaders.

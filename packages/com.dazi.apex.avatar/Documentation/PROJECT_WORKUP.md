@@ -1,25 +1,15 @@
 # Apex Avatar — Project Workup
 
-## Purpose
+## 0.3.0 implementation
 
-Provide a handwritten Apex PC avatar shader and a repeatable path to legal VRChat mobile avatar materials.
+- PC packed PBR avatar shader with wrapped lighting, rim, alpha clip, additional lights, shadows, reflection probes, quality tiers, debug views, SpectraOverdrive, and Standard-compatible fallback properties.
+- Editor presets for skin, cloth, hair, and hard surfaces.
+- Batch SDK mobile fallback generation with pairing metadata.
 
-## 0.2.0 implementation
+## Platform rule
 
-- Packed PBR surface with normal map, metallic, AO, effect mask, smoothness, and emission.
-- Soft wrapped direct lighting, rim, alpha clip, additional lights, shadows, fog, and debug views.
-- SpectraOverdrive group and four-band weighting.
-- Editor fallback generator targeting SDK-provided `VRChat/Mobile/Toon Standard`, `Standard Lite`, or `Toon Lit`.
-
-## Ownership boundaries
-
-- Shared lighting/math/shadows remain in Apex Core.
-- Mobile material generation remains in Apex Tools.
-- Apex does not bypass VRChat mobile shader restrictions.
+Custom Apex avatar shaders are PC-only in VRChat. Android, Quest, and iOS variants must use SDK-provided `VRChat/Mobile` shaders.
 
 ## Next work
 
-- Unity compile matrix.
-- PC avatar upload test.
-- Android/Quest and iOS fallback upload tests.
-- Preset profiles for skin, cloth, hair, and hard-surface avatar materials.
+- PC skin/hair shader families and upload validation.
