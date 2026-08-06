@@ -1,34 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-visibility="${1:-private}"
-case "$visibility" in
-  private|public) ;;
-  *) echo "Usage: $0 [private|public]" >&2; exit 2 ;;
-esac
+repo="DAZIxBREED/apex-shader-ecosystem"
+version="$(tr -d '[:space:]' < VERSION)"
+branch="$(git branch --show-current)"
 
 if ! command -v gh >/dev/null 2>&1; then
-  echo "GitHub CLI (gh) is required: https://cli.github.com/" >&2
+  echo "GitHub CLI (gh) is required." >&2
   exit 1
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
-  echo "Authenticate first with: gh auth login" >&2
+  echo "Authenticate with: gh auth login" >&2
   exit 1
 fi
 
-if git remote get-url origin >/dev/null 2>&1; then
-  echo "An origin remote already exists: $(git remote get-url origin)" >&2
-  echo "Remove or change it before running this publisher." >&2
-  exit 1
+if ! git remote get-url origin >/dev/null 2>&1; then
+  git remote add origin "https://github.com/${repo}.git"
 fi
 
-gh repo create DAZIxBREED/apex-shader-ecosystem \
-  "--${visibility}" \
-  --source=. \
-  --remote=origin \
-  --push
+git push -u origin "$branch"
 
-git push origin v0.1.0
-
-echo "Published DAZIxBREED/apex-shader-ecosystem (${visibility}) with tag v0.1.0."
+if [[ "$branch" == "main" ]]; then
+  if ! git rev-parse "v${version}" >/dev/null 2>&1; then
+    git tag -a "v${version}" -m "Apex Shader Ecosystem ${version}"
+  fi
+  git push origin "v${version}"
+  echo "Published ${repo} main and v${version}."
+else
+  echo "Published branch ${branch}. Open a pull request, merge it, then tag v${version} from main."
+fi

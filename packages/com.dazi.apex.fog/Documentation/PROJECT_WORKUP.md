@@ -2,45 +2,21 @@
 
 ## Purpose
 
-Fog cards, haze, smoke, distance/height/noise fade shaders for VRChat worlds.
+Apex Fog supplies inexpensive transparent atmosphere cards for haze, smoke, localized fog, and stage-volume accents in VRChat worlds.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- `Apex/Fog/CardLite` with two animated noise layers.
+- Authored mask, vertex color, distance fade, height fade, and view-angle edge fade.
+- Fog color/intensity and SpectraOverdrive tint/emission response.
+- One transparent unlit pass with no GrabPass, geometry stage, or compute dependency.
 
-## Rendering contract
+## Performance contract
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+Fog is fill-rate sensitive. Use bounded cards, avoid excessive overlap, keep textures compact, and profile on standalone mobile hardware.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex SpectraOverdrive bridge. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Soft intersection/depth-fade variant where the target pipeline exposes a safe depth texture.
+- Cylindrical and box volume mapping variants.
+- Mobile overdraw diagnostics in Apex Tools.

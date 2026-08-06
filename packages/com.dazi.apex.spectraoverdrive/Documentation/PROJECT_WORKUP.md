@@ -2,33 +2,24 @@
 
 ## Purpose
 
-Provide a clean, shared bridge between Apex shader packages and SpectraOverdrive show-control systems.
+This package defines the shared shader-side data contract between Apex visual packages and SpectraOverdrive show-control systems.
 
-## Minimum targets
+## 0.2.0 implementation
 
-- iOS
-- Quest
-- Android
-- PCVR
+- Global intensity, RGB color, four frequency bands, beat, blackout, strobe, group ID, and show-time inputs.
+- Broadcast group (`0`) and exact local group routing.
+- Normalized band weighting per material.
+- Shared pulse, tint, and emission helpers.
+- Neutral white/default behavior when globals are not driven.
+- Compatibility overloads for 0.1-era call sites.
 
-## What this project owns
+## Ownership boundaries
 
-- SpectraOverdrive material uniform contract
-- HLSL data struct for show-control values
-- safe fallback behavior when values are not driven
-- documentation for Udon/material-property drivers
+- This package does not schedule shows, synchronize Udon state, author timelines, or operate fixtures.
+- It only defines deterministic shader inputs and response helpers.
 
-## What this project refuses to own
+## Next work
 
-- Avatar shading
-- World shading
-- Water/fog/FX shading
-- Full SpectraOverdrive show authoring logic
-- Udon show scheduler logic
-
-## Completion bar for 0.1.0
-
-- HLSL bridge include exists
-- all visual Apex packages can include it
-- default values compile safely
-- blackout/tint/emission helpers exist
+- Freeze and document the Udon/global-property ABI.
+- Add a reference driver in the SpectraOverdrive repository.
+- Add bounded strobe/safety policy inputs and validation.

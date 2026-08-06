@@ -1,21 +1,9 @@
 # Apex World — Platform Budget
 
-## Minimum targets
+`Apex/World/Standard` uses three samplers by default and four when `_APEX_DETAIL` is enabled.
 
-- iOS
-- Quest
-- Android
-- PCVR
-
-## Mobile-safe defaults
-
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
-
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex SpectraOverdrive bridge without forcing package dependencies outside Apex unless explicitly documented.
+- Shader model 3.0.
+- ForwardBase, ForwardAdd, ShadowCaster, and Meta passes.
+- Supports lightmaps/SH, fog, stereo, and instancing.
+- Prefer baked lighting; limit real-time pixel lights and disable detail where it does not survive mobile viewing distance.
+- No GrabPass, tessellation, geometry stage, or compute.

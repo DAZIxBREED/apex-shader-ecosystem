@@ -1,4 +1,3 @@
-
 name: Feature request
 description: Propose a focused Apex capability.
 title: "[Feature]: "
@@ -11,10 +10,29 @@ body:
       description: Explain the concrete creator or runtime need.
     validations:
       required: true
+  - type: dropdown
+    id: content_type
+    attributes:
+      label: Content type
+      options:
+        - World material or effect
+        - PC avatar material
+        - SDK mobile avatar fallback workflow
+        - Editor tooling
+        - Core or integration API
+    validations:
+      required: true
   - type: textarea
     id: targets
     attributes:
-      label: Minimum platform behavior
-      description: Describe the expected iOS, Android, Quest, and PCVR fallback behavior.
+      label: Platform behavior
+      description: Describe expected Windows PCVR/Desktop, Android/Quest world, iOS world, and mobile-avatar fallback behavior where applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: budget
+    attributes:
+      label: Rendering budget
+      description: Note expected texture samples, passes, transparency, variants, and performance constraints.
     validations:
       required: true

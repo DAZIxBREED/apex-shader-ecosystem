@@ -1,20 +1,26 @@
 # Apex SpectraOverdrive Bridge
 
-Dedicated compatibility bridge between Apex shader packages and **SpectraOverdrive** show-control data.
+Apex-native show-control uniform contract.
 
-Author: **DAZIxBREED**  
-Version: **0.1.0**  
-Minimum targets: **iOS, Quest, Android, PCVR**
+Author: **DAZIxBREED**
+Version: **0.2.0**
+Compatibility: **All Apex visual targets**
+Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Purpose
+## Implemented in 0.2.0
 
-This package gives Apex shaders a stable, optional-looking but Apex-native way to receive SpectraOverdrive controls:
+- Intensity, color, beat, blackout, and strobe values
+- Four weighted frequency/control bands
+- Broadcast or exact group routing
+- Neutral behavior when no driver is present
+- `_ApexSpectra...` globals for ordinary Unity `Shader.SetGlobal*` drivers
+- `_UdonApexSpectra...` globals plus `_UdonApexSpectraActive` for VRChat `VRCShader.SetGlobal` adapters
+- Compatibility overloads for 0.1 materials
 
-- intensity
-- color
-- beat pulse
-- blackout
-- safe strobe pulse
-- fixture/material group id
+## Dependencies
 
-Apex shader packages depend on this bridge so they can be SpectraOverdrive-compatible from day one without hardcoding show logic into Avatar, World, Water, Fog, FX, Screens, or Toon.
+- `com.dazi.apex.core`
+
+## Validation boundary
+
+Static repository validation is included. Unity shader compilation and representative device/client tests remain required before a production release.

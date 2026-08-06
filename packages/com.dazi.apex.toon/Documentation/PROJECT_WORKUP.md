@@ -2,45 +2,20 @@
 
 ## Purpose
 
-Dedicated anime/toon character and material shaders separate from Apex Avatar.
+Apex Toon provides a dedicated stylized lighting family for world objects and PC materials without mixing toon-specific controls into the general Avatar or World shaders.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- `Apex/Toon/CharacterLite` with base, normal, and packed mask textures.
+- Configurable band count, shadow threshold/softness, shadow color, hard specular, rim light, AO, emission, alpha clip, and SpectraOverdrive response.
+- ForwardBase and ShadowCaster passes with fog, instancing, and stereo setup.
 
-## Rendering contract
+## Platform contract
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+The custom toon shader is valid for world content on supported platforms and PC avatar materials. VRChat mobile avatar uploads must use SDK-provided mobile shaders instead.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex SpectraOverdrive bridge. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Outline variants with platform-specific budgets.
+- Matcap and face-shadow-map options.
+- PC-only advanced hair/skin tiers separated from mobile world tiers.

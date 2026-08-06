@@ -1,21 +1,15 @@
 # Apex Core — Platform Budget
 
-## Minimum targets
+Apex Core adds no texture samplers by itself. Its cost is determined by the visual package that includes it.
 
-- iOS
-- Quest
-- Android
-- PCVR
+## Baseline rules
 
-## Mobile-safe defaults
+- Built-in Render Pipeline, shader model 2.0 or 3.0.
+- Single-pass stereo and GPU-instancing macros in shared vertex paths.
+- `half` precision for color/material math where practical.
+- No compute, geometry, hull, domain, or mandatory GrabPass features.
+- Packed maps before adding independent samplers.
 
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
+## Platform gates
 
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex integration bridge without forcing package dependencies outside Apex unless explicitly documented.
+`ApexCore_Platform.cginc` exposes Android, iOS, GLES2, and broad mobile quality scalars. Visual packages must use separate keywords or shaders when a PC feature cannot remain safe on mobile.

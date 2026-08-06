@@ -1,17 +1,26 @@
 # Apex FX
 
-Hologram, dissolve, shield, portal, flipbook, energy-field special effects.
+Hologram effect shader.
 
-Author: **DAZIxBREED**  
-Version: **0.1.0**  
-Minimum targets: **iOS, Quest, Android, PCVR**  
-Render pipeline: **Unity Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
+Author: **DAZIxBREED**
+Version: **0.2.0**
+Compatibility: **Windows PCVR/Desktop, Android/Quest worlds, and iOS worlds; profile transparency**
+Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
+
+## Implemented in 0.2.0
+
+- Masked additive output
+- World-space scanlines
+- Seeded flicker
+- Fresnel edge boost
+- Lightweight vertex glitch
+- SpectraOverdrive group/band routing
 
 ## Dependencies
 
-- com.dazi.apex.core
-- com.dazi.apex.spectraoverdrive
+- `com.dazi.apex.core`
+- `com.dazi.apex.spectraoverdrive`
 
-## SpectraOverdrive compatibility
+## Validation boundary
 
-This package is designed to remain compatible with SpectraOverdrive. Visual packages can consume the shared SpectraOverdrive bridge from `com.dazi.apex.spectraoverdrive` where applicable. Missing show-driver data must never break compilation.
+Static repository validation is included. Unity shader compilation and representative device/client tests remain required before a production release.

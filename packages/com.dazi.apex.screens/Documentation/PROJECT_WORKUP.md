@@ -2,45 +2,18 @@
 
 ## Purpose
 
-Video panels, LED walls, CRT/glitch/signage display shaders.
+Apex Screens supplies low-cost emissive display materials for video players, LED walls, signage, CRT-style panels, and stage surfaces.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- `Apex/Screens/VideoPanelLite` uses `_MainTex` for common Unity/VRChat video-player assignment.
+- UV rectangle/crop, horizontal and vertical flip.
+- Brightness, contrast, saturation, gamma, scanlines, and vignette.
+- Vertex tint, emission output, fog, and SpectraOverdrive response.
+- One unlit opaque pass and one sampler.
 
-## Rendering contract
+## Next work
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
-
-## SpectraOverdrive compatibility
-
-This package must remain compatible with SpectraOverdrive show data through the Apex SpectraOverdrive bridge. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Transparent/additive signage variants.
+- LED pixel-grid and CRT mask variants behind explicit keywords.
+- Color-space and limited/full-range presets validated against supported video players.

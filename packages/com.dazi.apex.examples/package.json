@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.examples",
   "displayName": "Apex Examples",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2022.3",
-  "description": "Optional importable quick-start materials and future sample scenes for the Apex ecosystem.",
+  "description": "Optional importable quick-start materials and setup references for the Apex ecosystem.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,14 +20,21 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.1.0",
-    "com.dazi.apex.integrations": "0.1.0",
-    "com.dazi.apex.avatar": "0.1.0",
-    "com.dazi.apex.world": "0.1.0",
-    "com.dazi.apex.water": "0.1.0",
-    "com.dazi.apex.fog": "0.1.0",
-    "com.dazi.apex.fx": "0.1.0",
-    "com.dazi.apex.screens": "0.1.0",
-    "com.dazi.apex.toon": "0.1.0"
-  }
+    "com.dazi.apex.core": "0.2.0",
+    "com.dazi.apex.integrations": "0.2.0",
+    "com.dazi.apex.avatar": "0.2.0",
+    "com.dazi.apex.world": "0.2.0",
+    "com.dazi.apex.water": "0.2.0",
+    "com.dazi.apex.fog": "0.2.0",
+    "com.dazi.apex.fx": "0.2.0",
+    "com.dazi.apex.screens": "0.2.0",
+    "com.dazi.apex.toon": "0.2.0"
+  },
+  "samples": [
+    {
+      "displayName": "Quick Start Materials",
+      "description": "Importable baseline materials for the Apex 0.2.0 shader families.",
+      "path": "Samples~/Quick Start Materials"
+    }
+  ]
 }

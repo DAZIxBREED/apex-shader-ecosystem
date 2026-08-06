@@ -1,28 +1,53 @@
-#ifndef APEXTOON_SURFACE_INCLUDED
-#define APEXTOON_SURFACE_INCLUDED
+#ifndef APEX_TOON_SURFACE_INCLUDED
+#define APEX_TOON_SURFACE_INCLUDED
 
-inline ApexSurfaceData ApexToonBuildSurface(ApexVaryings i, sampler2D baseMap, float4 baseMapST, fixed4 baseColor, sampler2D normalMap, float4 normalMapST, half normalScale, sampler2D maskMap, float4 maskMapST, fixed4 emissionColor)
+inline ApexSurfaceData ApexToonBuildSurface(
+    ApexVaryings i,
+    sampler2D baseMap,
+    float4 baseMapST,
+    half4 baseColor,
+    sampler2D normalMap,
+    float4 normalMapST,
+    half normalScale,
+    sampler2D maskMap,
+    float4 maskMapST,
+    half occlusionStrength,
+    half4 emissionColor)
 {
-    ApexSurfaceData s;
-    half4 baseSample = tex2D(baseMap, TRANSFORM_TEX(i.uv0, baseMap));
-    half4 maskSample = tex2D(maskMap, TRANSFORM_TEX(i.uv0, maskMap));
-    ApexPackedPBR p = ApexDecodePackedPBR(maskSample);
-    half3 normalTS = ApexUnpackNormalScale(normalMap, TRANSFORM_TEX(i.uv0, normalMap), normalScale * ApexMobileFeatureScalar());
-    s.albedo = baseSample.rgb * baseColor.rgb * i.vertexColor.rgb;
-    s.normalWS = ApexTangentToWorld(normalTS, i);
-    s.emission = emissionColor.rgb * emissionColor.a;
-    s.metallic = p.metallic;
-    s.smoothness = p.smoothness;
-    s.occlusion = p.occlusion;
-    s.alpha = baseSample.a * baseColor.a;
-    s.smoothness *= 0.25h; s.metallic = 0;
-    return s;
+    ApexSurfaceData surface = ApexBuildPackedSurface(
+        i,
+        baseMap,
+        baseMapST,
+        baseColor,
+        normalMap,
+        normalMapST,
+        normalScale,
+        maskMap,
+        maskMapST,
+        0.0h,
+        occlusionStrength,
+        0.25h,
+        emissionColor
+    );
+    surface.metallic = 0.0h;
+    return surface;
 }
 
-inline half3 ApexToonFinish(half3 color, ApexSurfaceData s, ApexVaryings i, half spectraAmount)
+inline half3 ApexToonFinish(
+    half3 color,
+    ApexSurfaceData surface,
+    ApexLightingData lighting,
+    half3 rimColor,
+    half rimPower,
+    half rimIntensity,
+    half spectraAmount,
+    half spectraGroup,
+    half4 spectraBandWeights)
 {
-    color = ApexSpectraTint(color, spectraAmount * 0.35h);
-    color += ApexSpectraEmission(half3(0,0,0), spectraAmount) * 0.25h;
+    color += ApexEvaluateRim(surface, lighting, rimColor, rimPower, rimIntensity);
+    color += surface.emission;
+    color = ApexSpectraTint(color, spectraAmount, spectraGroup, spectraBandWeights);
+    color += ApexSpectraEmission(half3(0.0h, 0.0h, 0.0h), surface.mask * spectraAmount, spectraGroup, spectraBandWeights);
     return color;
 }
 

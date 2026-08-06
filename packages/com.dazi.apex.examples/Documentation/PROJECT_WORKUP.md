@@ -2,45 +2,22 @@
 
 ## Purpose
 
-Optional importable quick-start materials and future sample scenes for the full Apex ecosystem.
+Apex Examples provides optional importable assets that demonstrate valid material setup without becoming a runtime dependency of any visual package.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- Quick-start materials for the current baseline shaders.
+- Material defaults that match the packed-mask and SpectraOverdrive contracts.
+- Setup notes for PC avatar materials and SDK mobile avatar fallbacks.
 
-## Rendering contract
+## Ownership boundaries
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+- Examples may depend on visual packages; visual packages never depend on Examples.
+- No production shader implementation belongs here.
+- Large textures, licensed media, and scene-specific SDK dependencies are excluded from the base sample set.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex integration layer. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Add a compact validation scene with one object per shader family.
+- Add Android/Quest, iOS, and PC comparison captures after device testing.
+- Add sample SpectraOverdrive property drivers without taking ownership of the show scheduler.

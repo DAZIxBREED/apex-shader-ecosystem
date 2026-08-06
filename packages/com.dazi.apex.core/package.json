@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.core",
   "displayName": "Apex Core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2022.3",
-  "description": "Shared HLSL foundation, structs, math, packing, debug, platform gates, and VRChat/BIRP helpers.",
+  "description": "Shared handwritten HLSL foundation with stereo/instancing support, packed surfaces, baked GI, forward lighting, shadows, platform helpers, and debug views.",
   "author": {
     "name": "DAZIxBREED"
   },

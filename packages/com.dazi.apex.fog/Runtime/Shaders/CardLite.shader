@@ -2,61 +2,85 @@ Shader "Apex/Fog/CardLite"
 {
     Properties
     {
-        _BaseMap("Base Map", 2D) = "white" {}
-        _BaseColor("Base Color", Color) = (1,1,1,1)
-        _NormalMap("Normal Map", 2D) = "bump" {}
-        _NormalScale("Normal Scale", Range(0,2)) = 1
-        _MaskMap("Mask Map R Metallic G AO B Mask A Smoothness", 2D) = "white" {}
-        _EmissionColor("Emission Color", Color) = (0,0,0,0)
+        _NoiseMap("Noise Texture", 2D) = "white" {}
+        _MaskMap("Shape Mask", 2D) = "white" {}
+        [HDR] _FogColor("Fog Color", Color) = (0.45,0.55,0.7,1)
+        _Density("Density", Range(0,3)) = 0.5
+        _SpeedA("Noise Speed A", Vector) = (0.01,0.005,0,0)
+        _SpeedB("Noise Speed B", Vector) = (-0.007,0.012,0,0)
+        _DistanceStart("Near Fade Start", Float) = 0.5
+        _DistanceEnd("Near Fade End", Float) = 3
+        _HeightMinimum("Full Density Height", Float) = -100
+        _HeightMaximum("Zero Density Height", Float) = 100
+        _EdgePower("View Edge Softness", Range(0.1,8)) = 1.5
         _SpectraAmount("SpectraOverdrive Amount", Range(0,1)) = 0
-        _DebugMode("Debug Mode", Int) = 0
+        _SpectraGroup("Spectra Group (0 = Broadcast)", Float) = 0
+        _SpectraBandWeights("Spectra Band Weights", Vector) = (0.4,0.35,0.2,0.05)
     }
+
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
-        LOD 150
+        Tags { "RenderType"="Transparent" "Queue"="Transparent+10" "IgnoreProjector"="True" }
+        LOD 100
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
+        Cull Off
+
         Pass
         {
-            Name "FORWARD_BASE"
+            Name "UNLIT_FOG"
             Tags { "LightMode"="ForwardBase" }
+
             CGPROGRAM
             #pragma target 2.0
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
-            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Packing.cginc"
-            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Lighting.cginc"
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Platform.cginc"
-            #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Debug.cginc"
             #include "Packages/com.dazi.apex.spectraoverdrive/Runtime/HLSL/ApexSpectraOverdrive_Bridge.cginc"
             #include "Packages/com.dazi.apex.fog/Runtime/HLSL/ApexFog_Surface.cginc"
 
-            sampler2D _BaseMap; float4 _BaseMap_ST;
-            sampler2D _NormalMap; float4 _NormalMap_ST;
+            sampler2D _NoiseMap; float4 _NoiseMap_ST;
             sampler2D _MaskMap; float4 _MaskMap_ST;
-            fixed4 _BaseColor;
-            fixed4 _EmissionColor;
-            half _NormalScale;
+            half4 _FogColor;
+            half _Density;
+            half2 _SpeedA;
+            half2 _SpeedB;
+            half _DistanceStart;
+            half _DistanceEnd;
+            half _HeightMinimum;
+            half _HeightMaximum;
+            half _EdgePower;
             half _SpectraAmount;
-            int _DebugMode;
+            half _SpectraGroup;
+            half4 _SpectraBandWeights;
 
-            ApexVaryings vert(ApexAttributes v) { return ApexCoreVert(v); }
+            ApexUnlitVaryings vert(ApexAttributes v) { return ApexCoreUnlitVert(v); }
 
-            fixed4 frag(ApexVaryings i) : SV_Target
+            half4 frag(ApexUnlitVaryings i) : SV_Target
             {
-                ApexSurfaceData s = ApexFogBuildSurface(i, _BaseMap, _BaseMap_ST, _BaseColor, _NormalMap, _NormalMap_ST, _NormalScale, _MaskMap, _MaskMap_ST, _EmissionColor);
-                ApexLightingData l = ApexBuildMainLight(i, s);
-                half3 color = ApexLambert(s, l) + s.emission;
-                color = ApexFogFinish(color, s, i, _SpectraAmount);
-                color = ApexDebugColor(_DebugMode, s, i, color);
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+                ApexFogData fog = ApexBuildFog(
+                    i,
+                    _NoiseMap, _NoiseMap_ST,
+                    _MaskMap, _MaskMap_ST,
+                    _SpeedA, _SpeedB,
+                    _Density, _FogColor.rgb,
+                    _DistanceStart, _DistanceEnd,
+                    _HeightMinimum, _HeightMaximum,
+                    _EdgePower
+                );
+                half3 color = ApexSpectraTint(fog.color, _SpectraAmount, _SpectraGroup, _SpectraBandWeights);
+                color += ApexSpectraEmission(half3(0.0h, 0.0h, 0.0h), fog.noise * _SpectraAmount, _SpectraGroup, _SpectraBandWeights);
                 color = ApexApplyFog(i, color);
-                return fixed4(color, s.alpha);
+                return half4(color, fog.alpha * _FogColor.a);
             }
             ENDCG
         }
     }
-    Fallback "Diffuse"
+
+    Fallback Off
 }

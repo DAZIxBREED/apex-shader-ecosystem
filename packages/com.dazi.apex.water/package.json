@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.water",
   "displayName": "Apex Water",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2022.3",
-  "description": "Mobile-safe pool/liquid/water shaders with scrolling normals, foam, fake depth, caustics hooks, SpectraOverdrive tint/pulse.",
+  "description": "Mobile-conscious pool water with dual scrolling normals, depth tint, Fresnel, foam mask, lighting, fog, and SpectraOverdrive control.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.1.0",
-    "com.dazi.apex.spectraoverdrive": "0.1.0"
+    "com.dazi.apex.core": "0.2.0",
+    "com.dazi.apex.spectraoverdrive": "0.2.0"
   }
 }

@@ -1,21 +1,8 @@
 # Apex Screens — Platform Budget
 
-## Minimum targets
+`Apex/Screens/VideoPanelLite` uses one opaque unlit pass and one sampler (`_MainTex`).
 
-- iOS
-- Quest
-- Android
-- PCVR
-
-## Mobile-safe defaults
-
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
-
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex SpectraOverdrive bridge without forcing package dependencies outside Apex unless explicitly documented.
+- Shader model 2.0.
+- UV crop/flip and color grading are arithmetic-only.
+- Scanline and vignette controls add arithmetic but no samplers.
+- Keep unnecessary grading controls at neutral values and profile very large LED walls on mobile.
