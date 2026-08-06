@@ -1,21 +1,8 @@
 # Apex Integrations — Platform Budget
 
-## Minimum targets
+The 0.2.0 bridge functions add no samplers and no render passes.
 
-- iOS
-- Quest
-- Android
-- PCVR
-
-## Mobile-safe defaults
-
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
-
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex integration bridge without forcing package dependencies outside Apex unless explicitly documented.
+- Audio uses four global bands plus one amplitude value.
+- Light-volume, LTCGI-style, and VRSL-style bridges each use one global color.
+- All functions return neutral behavior when globals are not driven.
+- Concrete future adapters must document any additional sampler, keyword, or dependency cost.

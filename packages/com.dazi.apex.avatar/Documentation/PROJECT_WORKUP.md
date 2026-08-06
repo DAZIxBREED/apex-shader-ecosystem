@@ -2,45 +2,24 @@
 
 ## Purpose
 
-Avatar material shaders with mobile-safe PBR/toon-lite, emission, rim, and SpectraOverdrive-reactive options.
+Provide a handwritten Apex PC avatar shader and a repeatable path to legal VRChat mobile avatar materials.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- Packed PBR surface with normal map, metallic, AO, effect mask, smoothness, and emission.
+- Soft wrapped direct lighting, rim, alpha clip, additional lights, shadows, fog, and debug views.
+- SpectraOverdrive group and four-band weighting.
+- Editor fallback generator targeting SDK-provided `VRChat/Mobile/Toon Standard`, `Standard Lite`, or `Toon Lit`.
 
-## Rendering contract
+## Ownership boundaries
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+- Shared lighting/math/shadows remain in Apex Core.
+- Mobile material generation remains in Apex Tools.
+- Apex does not bypass VRChat mobile shader restrictions.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex SpectraOverdrive bridge. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Unity compile matrix.
+- PC avatar upload test.
+- Android/Quest and iOS fallback upload tests.
+- Preset profiles for skin, cloth, hair, and hard-surface avatar materials.

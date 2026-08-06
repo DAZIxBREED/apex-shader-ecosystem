@@ -1,29 +1,32 @@
-#ifndef APEXSCREENS_SURFACE_INCLUDED
-#define APEXSCREENS_SURFACE_INCLUDED
+#ifndef APEX_SCREENS_SURFACE_INCLUDED
+#define APEX_SCREENS_SURFACE_INCLUDED
 
-inline ApexSurfaceData ApexScreensBuildSurface(ApexVaryings i, sampler2D baseMap, float4 baseMapST, fixed4 baseColor, sampler2D normalMap, float4 normalMapST, half normalScale, sampler2D maskMap, float4 maskMapST, fixed4 emissionColor)
+inline half2 ApexScreenUV(half2 uv, half4 uvRect, half flipX, half flipY)
 {
-    ApexSurfaceData s;
-    half4 baseSample = tex2D(baseMap, TRANSFORM_TEX(i.uv0, baseMap));
-    half4 maskSample = tex2D(maskMap, TRANSFORM_TEX(i.uv0, maskMap));
-    ApexPackedPBR p = ApexDecodePackedPBR(maskSample);
-    half3 normalTS = ApexUnpackNormalScale(normalMap, TRANSFORM_TEX(i.uv0, normalMap), normalScale * ApexMobileFeatureScalar());
-    s.albedo = baseSample.rgb * baseColor.rgb * i.vertexColor.rgb;
-    s.normalWS = ApexTangentToWorld(normalTS, i);
-    s.emission = emissionColor.rgb * emissionColor.a;
-    s.metallic = p.metallic;
-    s.smoothness = p.smoothness;
-    s.occlusion = p.occlusion;
-    s.alpha = baseSample.a * baseColor.a;
-    s.emission += s.albedo * (1.0h + p.heightOrMask * 2.0h); s.metallic = 0;
-    return s;
+    uv.x = lerp(uv.x, 1.0h - uv.x, step(0.5h, flipX));
+    uv.y = lerp(uv.y, 1.0h - uv.y, step(0.5h, flipY));
+    return uvRect.xy + uv * uvRect.zw;
 }
 
-inline half3 ApexScreensFinish(half3 color, ApexSurfaceData s, ApexVaryings i, half spectraAmount)
+inline half3 ApexGradeScreen(
+    half3 color,
+    half brightness,
+    half contrast,
+    half saturation,
+    half gammaValue)
 {
-    color = ApexSpectraTint(color, spectraAmount * 0.35h);
-    color += ApexSpectraEmission(half3(0,0,0), spectraAmount) * 0.25h;
+    color *= max(brightness, 0.0h);
+    color = ApexAdjustContrast(color, contrast);
+    color = ApexAdjustSaturation(color, saturation);
+    color = pow(max(color, 0.0h), rcp(max(gammaValue, 0.01h)));
     return color;
+}
+
+inline half ApexScreenVignette(half2 uv, half strength, half softness)
+{
+    half2 centered = abs(uv * 2.0h - 1.0h);
+    half edge = max(centered.x, centered.y);
+    return 1.0h - smoothstep(1.0h - softness, 1.0h, edge) * strength;
 }
 
 #endif

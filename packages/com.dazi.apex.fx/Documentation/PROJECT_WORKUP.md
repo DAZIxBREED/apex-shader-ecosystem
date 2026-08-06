@@ -2,45 +2,21 @@
 
 ## Purpose
 
-Hologram, dissolve, shield, portal, flipbook, energy-field special effects.
+Apex FX owns specialized visual-effect materials that should not bloat the Avatar, World, or Screen packages.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- `Apex/FX/HologramLite` additive hologram shader.
+- Base and authored mask sampling.
+- Scanlines, temporal flicker, Fresnel edge glow, and lightweight object-space vertex glitch.
+- SpectraOverdrive group and four-band response.
 
-## Rendering contract
+## Performance contract
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+The baseline uses one transparent pass and two samplers. Geometry, tessellation, GrabPass, and compute are intentionally excluded.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex SpectraOverdrive bridge. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Dissolve/cutout family.
+- Shield and portal families with mobile and PC quality tiers.
+- Flipbook and distortion paths with explicit sampler/overdraw budgets.

@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.world",
   "displayName": "Apex World",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2022.3",
-  "description": "World and environment material shaders with packed PBR, emissive panels, triplanar-lite hooks, lightmap-friendly behavior.",
+  "description": "Lightmapped world/environment shader with packed PBR, dynamic lights, shadows, optional detail, emission, alpha clip, and SpectraOverdrive control.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.1.0",
-    "com.dazi.apex.spectraoverdrive": "0.1.0"
+    "com.dazi.apex.core": "0.2.0",
+    "com.dazi.apex.spectraoverdrive": "0.2.0"
   }
 }

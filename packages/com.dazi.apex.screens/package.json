@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.screens",
   "displayName": "Apex Screens",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "unity": "2022.3",
-  "description": "Video panels, LED walls, CRT/glitch/signage display shaders.",
+  "description": "Video-player-oriented _MainTex screen shader with UV controls, grading, gamma, scanlines, vignette, emission, and SpectraOverdrive control.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.1.0",
-    "com.dazi.apex.spectraoverdrive": "0.1.0"
+    "com.dazi.apex.core": "0.2.0",
+    "com.dazi.apex.spectraoverdrive": "0.2.0"
   }
 }

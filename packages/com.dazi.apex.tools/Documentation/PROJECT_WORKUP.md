@@ -2,45 +2,23 @@
 
 ## Purpose
 
-Editor-side validators, package doctor, future texture packer/material converter/preset workflow.
+Apex Tools owns editor-only authoring, conversion, and validation workflows for the shader ecosystem.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- **Package Doctor:** verifies required Apex shaders, scans all Apex materials, reports unsupported shaders, missing mobile avatar fallbacks, disabled instancing, oversized textures, suspicious alpha clipping, and transparent fill-rate risks.
+- **Packed Mask Builder:** creates the R metallic / G occlusion / B effect / A smoothness texture from readable or non-readable source textures, with per-channel fallback and inversion.
+- **Mobile Avatar Fallback Builder:** creates a second material using an installed SDK `VRChat/Mobile` shader and transfers compatible base, normal, mask, color, emission, metallic, smoothness, and cutoff values without a hard SDK compile dependency.
 
-## Rendering contract
+## Ownership boundaries
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+- Tools is editor-only and must add no player/runtime assemblies.
+- It does not bypass VRChat platform rules or upload content.
+- It does not silently rewrite source materials.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex integration layer. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Batch fallback generation and source/fallback pairing metadata.
+- Material migration from common BIRP shaders.
+- Shader variant report and mobile overdraw checks.
+- Automated Unity batch validation entry points.

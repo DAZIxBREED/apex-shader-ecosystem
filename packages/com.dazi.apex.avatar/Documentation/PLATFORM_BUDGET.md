@@ -1,21 +1,21 @@
 # Apex Avatar — Platform Budget
 
-## Minimum targets
+## Platform contract
 
-- iOS
-- Quest
-- Android
-- PCVR
+- `Apex/Avatar/Standard` is a custom PCVR/Desktop avatar shader.
+- VRChat Android/Quest/iOS avatars must use SDK-provided `VRChat/Mobile` shaders.
+- Apex Tools generates a second mobile fallback material and transfers compatible textures/colors.
 
-## Mobile-safe defaults
+## PC shader budget
 
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
+- Shader Model 3.0.
+- Base, normal, and packed mask textures.
+- One ForwardBase pass, one additive-light pass, and one ShadowCaster pass.
+- Optional alpha clipping, rim, soft wrap, and SpectraOverdrive response.
 
-## SpectraOverdrive
+## Mobile fallback budget
 
-SpectraOverdrive support should consume existing material properties and the Apex SpectraOverdrive bridge without forcing package dependencies outside Apex unless explicitly documented.
+- Prefer one material and a packed texture layout supported by the selected SDK mobile shader.
+- Prefer 1024 textures; use 2048 only where justified.
+- Enable GPU instancing where the SDK shader supports it.
+- Validate the fallback in the Android and iOS build targets rather than assuming PC parity.

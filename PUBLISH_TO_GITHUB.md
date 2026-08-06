@@ -1,39 +1,45 @@
+# Publishing Updates to GitHub
 
-# Publish this repository to GitHub
-
-## One-command publication
-
-With GitHub CLI installed and authenticated, publish as a private repository:
-
-```bash
-./scripts/publish_github.sh private
-```
-
-Use `public` instead only when the source is ready to be publicly visible.
-
-
-The intended GitHub repository is:
+The repository remote is:
 
 ```text
-DAZIxBREED/apex-shader-ecosystem
+https://github.com/DAZIxBREED/apex-shader-ecosystem.git
 ```
 
-Create an **empty** repository with that name on GitHub. Do not initialize it with a README, license, or `.gitignore`, because this repository already contains them.
+## Authenticate
 
-Then run from this folder:
+GitHub account passwords are not accepted for HTTPS Git operations. Use GitHub CLI:
 
 ```bash
-git remote add origin git@github.com:DAZIxBREED/apex-shader-ecosystem.git
-git push -u origin main
-git tag -a v0.1.0 -m "Apex Shader Ecosystem 0.1.0"
-git push origin v0.1.0
+gh auth login
+gh auth refresh -h github.com -s workflow
+gh auth setup-git
 ```
 
-For HTTPS instead of SSH:
+The `workflow` scope is required because this repository contains files under `.github/workflows/`.
+
+## Push the current development branch
 
 ```bash
-git remote add origin https://github.com/DAZIxBREED/apex-shader-ecosystem.git
-git push -u origin main
+git push -u origin "$(git branch --show-current)"
 ```
 
-The tag triggers the package archive workflow after GitHub Actions is enabled.
+## Merge through a pull request
+
+```bash
+gh pr create --fill --draft
+```
+
+After validation and review, merge the PR into `main`.
+
+## Tag a release
+
+Use the exact value in `VERSION`:
+
+```bash
+version="$(cat VERSION)"
+git switch main
+git pull --ff-only
+git tag -a "v${version}" -m "Apex Shader Ecosystem ${version}"
+git push origin main "v${version}"
+```

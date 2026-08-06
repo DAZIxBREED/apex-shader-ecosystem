@@ -1,21 +1,8 @@
 # Apex Water — Platform Budget
 
-## Minimum targets
+`Apex/Water/PoolLite` uses one transparent forward-base pass and three samplers (`_BaseMap`, `_NormalMap`, `_MaskMap`).
 
-- iOS
-- Quest
-- Android
-- PCVR
-
-## Mobile-safe defaults
-
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
-
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex SpectraOverdrive bridge without forcing package dependencies outside Apex unless explicitly documented.
+- Shader model 3.0.
+- Two normal layers reuse the same normal texture at different UVs.
+- No GrabPass, refraction buffer, depth texture, tessellation, geometry stage, or compute.
+- Screen coverage and overlapping transparency are the dominant mobile risks.

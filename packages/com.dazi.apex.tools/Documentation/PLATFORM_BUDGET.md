@@ -1,21 +1,8 @@
 # Apex Tools — Platform Budget
 
-## Minimum targets
+Apex Tools is editor-only and must not be included in player builds.
 
-- iOS
-- Quest
-- Android
-- PCVR
-
-## Mobile-safe defaults
-
-- Prefer `#pragma target 2.0` or `3.0` unless a feature truly requires more.
-- Avoid compute, geometry, tessellation, and required GrabPass.
-- Prefer `half`/`fixed` where reasonable.
-- Prefer 1–4 textures for mobile starter shaders.
-- Use packed maps before adding more samplers.
-- Add PC-only expansion only behind clear keywords or separate shaders.
-
-## SpectraOverdrive
-
-SpectraOverdrive support should consume existing material properties and the Apex integration bridge without forcing package dependencies outside Apex unless explicitly documented.
+- All source files live under `Editor/` and are wrapped in `#if UNITY_EDITOR`.
+- Packed-mask generation uses temporary editor memory proportional to output resolution.
+- A 4096 output may allocate substantial temporary CPU/GPU memory; 1024 is the default.
+- Validation scans project materials and should be run before platform builds, not every frame.

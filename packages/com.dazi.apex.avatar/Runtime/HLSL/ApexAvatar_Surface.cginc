@@ -1,28 +1,63 @@
-#ifndef APEXAVATAR_SURFACE_INCLUDED
-#define APEXAVATAR_SURFACE_INCLUDED
+#ifndef APEX_AVATAR_SURFACE_INCLUDED
+#define APEX_AVATAR_SURFACE_INCLUDED
 
-inline ApexSurfaceData ApexAvatarBuildSurface(ApexVaryings i, sampler2D baseMap, float4 baseMapST, fixed4 baseColor, sampler2D normalMap, float4 normalMapST, half normalScale, sampler2D maskMap, float4 maskMapST, fixed4 emissionColor)
+inline ApexSurfaceData ApexAvatarBuildSurface(
+    ApexVaryings i,
+    sampler2D baseMap,
+    float4 baseMapST,
+    half4 baseColor,
+    sampler2D normalMap,
+    float4 normalMapST,
+    half normalScale,
+    sampler2D maskMap,
+    float4 maskMapST,
+    half metallic,
+    half occlusionStrength,
+    half smoothness,
+    half4 emissionColor)
 {
-    ApexSurfaceData s;
-    half4 baseSample = tex2D(baseMap, TRANSFORM_TEX(i.uv0, baseMap));
-    half4 maskSample = tex2D(maskMap, TRANSFORM_TEX(i.uv0, maskMap));
-    ApexPackedPBR p = ApexDecodePackedPBR(maskSample);
-    half3 normalTS = ApexUnpackNormalScale(normalMap, TRANSFORM_TEX(i.uv0, normalMap), normalScale * ApexMobileFeatureScalar());
-    s.albedo = baseSample.rgb * baseColor.rgb * i.vertexColor.rgb;
-    s.normalWS = ApexTangentToWorld(normalTS, i);
-    s.emission = emissionColor.rgb * emissionColor.a;
-    s.metallic = p.metallic;
-    s.smoothness = p.smoothness;
-    s.occlusion = p.occlusion;
-    s.alpha = baseSample.a * baseColor.a;
-
-    return s;
+    return ApexBuildPackedSurface(
+        i,
+        baseMap,
+        baseMapST,
+        baseColor,
+        normalMap,
+        normalMapST,
+        normalScale,
+        maskMap,
+        maskMapST,
+        metallic,
+        occlusionStrength,
+        smoothness,
+        emissionColor
+    );
 }
 
-inline half3 ApexAvatarFinish(half3 color, ApexSurfaceData s, ApexVaryings i, half spectraAmount)
+inline half3 ApexAvatarBaseLighting(
+    ApexSurfaceData surface,
+    ApexLightingData lighting,
+    half wrapAmount,
+    half3 wrapColor)
 {
-    color = ApexSpectraTint(color, spectraAmount * 0.35h);
-    color += ApexSpectraEmission(half3(0,0,0), spectraAmount) * 0.25h;
+    half3 physicallyBased = ApexEvaluateBaseLighting(surface, lighting);
+    half3 wrapped = ApexEvaluateWrappedDiffuse(surface, lighting, wrapAmount, wrapColor);
+    return lerp(physicallyBased, physicallyBased + wrapped * 0.25h, saturate(wrapAmount));
+}
+
+inline half3 ApexAvatarFinish(
+    half3 color,
+    ApexSurfaceData surface,
+    ApexLightingData lighting,
+    half3 rimColor,
+    half rimPower,
+    half rimIntensity,
+    half spectraAmount,
+    half spectraGroup,
+    half4 spectraBandWeights)
+{
+    color += ApexEvaluateRim(surface, lighting, rimColor, rimPower, rimIntensity);
+    color = ApexSpectraTint(color, spectraAmount, spectraGroup, spectraBandWeights);
+    color += ApexSpectraEmission(half3(0.0h, 0.0h, 0.0h), surface.mask * spectraAmount, spectraGroup, spectraBandWeights);
     return color;
 }
 

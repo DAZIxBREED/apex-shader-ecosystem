@@ -5,18 +5,27 @@ struct ApexPackedPBR
 {
     half metallic;
     half occlusion;
-    half heightOrMask;
+    half mask;
     half smoothness;
 };
 
-inline ApexPackedPBR ApexDecodePackedPBR(half4 packedValue)
+inline ApexPackedPBR ApexDecodePackedPBR(
+    half4 packedValue,
+    half metallicScale,
+    half occlusionStrength,
+    half smoothnessScale)
 {
-    ApexPackedPBR p;
-    p.metallic = packedValue.r;
-    p.occlusion = packedValue.g;
-    p.heightOrMask = packedValue.b;
-    p.smoothness = packedValue.a;
-    return p;
+    ApexPackedPBR packed;
+    packed.metallic = saturate(packedValue.r * metallicScale);
+    packed.occlusion = lerp(1.0h, packedValue.g, saturate(occlusionStrength));
+    packed.mask = packedValue.b;
+    packed.smoothness = saturate(packedValue.a * smoothnessScale);
+    return packed;
+}
+
+inline half4 ApexEncodePackedPBR(ApexPackedPBR packed)
+{
+    return half4(packed.metallic, packed.occlusion, packed.mask, packed.smoothness);
 }
 
 #endif

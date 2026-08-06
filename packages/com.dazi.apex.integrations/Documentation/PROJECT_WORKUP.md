@@ -2,45 +2,24 @@
 
 ## Purpose
 
-Optional integration bridges including SpectraOverdrive, AudioLink, LTCGI, VRC Light Volumes, VRSL-style hooks.
+Apex Integrations provides dependency-free HLSL contracts that external systems can drive without making the shader packages compile against those external packages.
 
-## Minimum target platforms
+## 0.2.0 implementation
 
-- iOS
-- Quest standalone
-- Android
-- PCVR
+- Compatibility forwarding include for the canonical SpectraOverdrive bridge.
+- Global four-band audio and amplitude inputs.
+- Global light-volume multiplier.
+- Global LTCGI-style and VRSL-style emission inputs.
+- Neutral fallback behavior when no external driver writes the globals.
 
-## Rendering contract
+## Ownership boundaries
 
-- Unity Built-in Render Pipeline
-- handwritten vertex/fragment HLSL/CG
-- mobile-safe first pass
-- Quest/iOS/Android fallbacks are mandatory
-- PCVR expands quality but cannot become the only valid path
+- These are interoperability contracts, not vendor SDK reimplementations.
+- The package does not claim native AudioLink, LTCGI, VRC Light Volumes, or VRSL API binding yet.
+- Concrete adapters must be optional and isolated so importing Apex never requires those packages.
 
-## SpectraOverdrive compatibility
+## Next work
 
-This package must remain compatible with SpectraOverdrive show data through the Apex integration layer. It should use intensity, color, beat, blackout, and safe strobe-style pulse data where visually useful.
-
-## What this project owns
-
-- Its own shader files
-- Its own HLSL includes
-- Its own presets/material workflow docs
-- Its own performance budget
-
-## What this project refuses to own
-
-- Core math/platform structs belong in Apex Core
-- Optional external systems belong in Apex Integrations
-- Example/demo content belongs in Apex Examples
-- Broad editor workflow belongs in Apex Tools
-
-## 0.1.0 completion bar
-
-- package imports cleanly
-- starter shader compiles
-- mobile-safe path exists
-- docs identify feature and sampler budgets
-- SpectraOverdrive behavior documented
+- Add opt-in adapter includes after validating exact upstream APIs and licenses.
+- Add an editor diagnostics panel showing which global inputs are actively driven.
+- Add versioned bridge contracts to prevent property-name drift.

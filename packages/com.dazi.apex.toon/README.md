@@ -1,17 +1,31 @@
 # Apex Toon
 
-Dedicated anime/toon character and material shaders separate from Apex Avatar.
+Banded toon material shader.
 
-Author: **DAZIxBREED**  
-Version: **0.1.0**  
-Minimum targets: **iOS, Quest, Android, PCVR**  
-Render pipeline: **Unity Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
+Author: **DAZIxBREED**
+Version: **0.2.0**
+Compatibility: **World objects across targets; custom avatar use is PC-only in VRChat**
+Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
+
+## Implemented in 0.2.0
+
+- Banded direct lighting and colored shadow
+- Hard specular control
+- Normal map and AO/effect mask
+- Rim and emission
+- Alpha clip and shadow caster
+- SpectraOverdrive group/band routing
+- Standard-compatible property names and exact `VRCFallback="toonstandard"` metadata
 
 ## Dependencies
 
-- com.dazi.apex.core
-- com.dazi.apex.spectraoverdrive
+- `com.dazi.apex.core`
+- `com.dazi.apex.spectraoverdrive`
 
-## SpectraOverdrive compatibility
+## Avatar note
 
-This package is designed to remain compatible with SpectraOverdrive. Visual packages can consume the shared SpectraOverdrive bridge from `com.dazi.apex.spectraoverdrive` where applicable. Missing show-driver data must never break compilation.
+This custom toon shader can be used for PC avatars, but mobile avatar uploads must use an SDK-provided `VRChat/Mobile` shader. World objects may use custom shaders on mobile builds subject to performance testing.
+
+## Validation boundary
+
+Static repository validation is included. Unity shader compilation and representative device/client tests remain required before a production release.

@@ -18,12 +18,14 @@ Shader "Apex/Core/Debug"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
             #include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
-            sampler2D _BaseMap; float4 _BaseMap_ST; fixed4 _BaseColor;
-            ApexVaryings vert(ApexAttributes v){ return ApexCoreVert(v); }
-            fixed4 frag(ApexVaryings i) : SV_Target
+            sampler2D _BaseMap; float4 _BaseMap_ST; half4 _BaseColor;
+            ApexUnlitVaryings vert(ApexAttributes v){ return ApexCoreUnlitVert(v); }
+            half4 frag(ApexUnlitVaryings i) : SV_Target
             {
-                fixed4 c = tex2D(_BaseMap, TRANSFORM_TEX(i.uv0, _BaseMap)) * _BaseColor;
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
+                half4 c = tex2D(_BaseMap, TRANSFORM_TEX(i.uv0, _BaseMap)) * _BaseColor;
                 c.rgb = ApexApplyFog(i, c.rgb);
                 return c;
             }
