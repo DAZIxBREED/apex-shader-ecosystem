@@ -1,0 +1,24 @@
+{
+  "name": "com.dazi.apex.spectraoverdrive",
+  "displayName": "Apex SpectraOverdrive Bridge",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Dedicated compatibility bridge between Apex shader packages and SpectraOverdrive show-control data.",
+  "author": {
+    "name": "DAZIxBREED"
+  },
+  "keywords": [
+    "Apex",
+    "DAZIxBREED",
+    "SpectraOverdrive",
+    "HLSL",
+    "VRChat",
+    "Quest",
+    "iOS",
+    "Android",
+    "PCVR"
+  ],
+  "dependencies": {
+    "com.dazi.apex.core": "0.1.0"
+  }
+}

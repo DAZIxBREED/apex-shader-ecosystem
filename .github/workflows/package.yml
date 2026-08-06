@@ -1,0 +1,27 @@
+
+name: Build UPM Archives
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 scripts/validate_repo.py
+      - run: python3 scripts/build_release_archives.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apex-upm-${{ github.ref_name }}
+          path: artifacts/*.tar.gz
+          if-no-files-found: error

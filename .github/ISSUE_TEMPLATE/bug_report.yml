@@ -1,0 +1,39 @@
+
+name: Bug report
+description: Report an Apex shader, package, or platform regression.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - Core
+        - SpectraOverdrive
+        - Integrations
+        - Avatar
+        - World
+        - Water
+        - Fog
+        - FX
+        - Screens
+        - Toon
+        - Tools
+        - Examples
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [iOS, Android, Quest, PCVR Windows, PCVR Linux, Unity Editor]
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include Unity version, renderer, material settings, console output, and reproduction steps.
+    validations:
+      required: true

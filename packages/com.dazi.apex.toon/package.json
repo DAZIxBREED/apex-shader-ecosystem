@@ -1,0 +1,26 @@
+{
+  "name": "com.dazi.apex.toon",
+  "displayName": "Apex Toon",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Dedicated anime/toon character and material shaders separate from Apex Avatar.",
+  "author": {
+    "name": "DAZIxBREED"
+  },
+  "keywords": [
+    "Apex",
+    "DAZIxBREED",
+    "HLSL",
+    "VRChat",
+    "BIRP",
+    "Quest",
+    "iOS",
+    "Android",
+    "PCVR",
+    "SpectraOverdrive"
+  ],
+  "dependencies": {
+    "com.dazi.apex.core": "0.1.0",
+    "com.dazi.apex.spectraoverdrive": "0.1.0"
+  }
+}

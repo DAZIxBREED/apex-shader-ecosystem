@@ -1,0 +1,26 @@
+{
+  "name": "com.dazi.apex.screens",
+  "displayName": "Apex Screens",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Video panels, LED walls, CRT/glitch/signage display shaders.",
+  "author": {
+    "name": "DAZIxBREED"
+  },
+  "keywords": [
+    "Apex",
+    "DAZIxBREED",
+    "HLSL",
+    "VRChat",
+    "BIRP",
+    "Quest",
+    "iOS",
+    "Android",
+    "PCVR",
+    "SpectraOverdrive"
+  ],
+  "dependencies": {
+    "com.dazi.apex.core": "0.1.0",
+    "com.dazi.apex.spectraoverdrive": "0.1.0"
+  }
+}

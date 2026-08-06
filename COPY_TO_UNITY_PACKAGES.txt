@@ -1,0 +1,1 @@
+Copy every folder inside /packages into your Unity project Packages/ folder, or add each as a local package through Package Manager. Install Core first.

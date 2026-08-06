@@ -1,0 +1,29 @@
+{
+  "name": "Apex Shader Ecosystem",
+  "slug": "apex-shader-ecosystem",
+  "owner": "DAZIxBREED",
+  "version": "0.1.0",
+  "status": "pre-alpha",
+  "unity": "2022.3",
+  "renderPipeline": "Built-in Render Pipeline",
+  "targets": [
+    "iOS",
+    "Android",
+    "Quest",
+    "PCVR"
+  ],
+  "packages": [
+    "com.dazi.apex.avatar",
+    "com.dazi.apex.core",
+    "com.dazi.apex.examples",
+    "com.dazi.apex.fog",
+    "com.dazi.apex.fx",
+    "com.dazi.apex.integrations",
+    "com.dazi.apex.screens",
+    "com.dazi.apex.spectraoverdrive",
+    "com.dazi.apex.tools",
+    "com.dazi.apex.toon",
+    "com.dazi.apex.water",
+    "com.dazi.apex.world"
+  ]
+}

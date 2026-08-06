@@ -1,0 +1,25 @@
+{
+  "name": "com.dazi.apex.integrations",
+  "displayName": "Apex Integrations",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Optional integration bridges including SpectraOverdrive, AudioLink, LTCGI, VRC Light Volumes, VRSL-style hooks.",
+  "author": {
+    "name": "DAZIxBREED"
+  },
+  "keywords": [
+    "Apex",
+    "DAZIxBREED",
+    "HLSL",
+    "VRChat",
+    "BIRP",
+    "Quest",
+    "iOS",
+    "Android",
+    "PCVR",
+    "SpectraOverdrive"
+  ],
+  "dependencies": {
+    "com.dazi.apex.core": "0.1.0"
+  }
+}
