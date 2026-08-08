@@ -10,22 +10,6 @@ namespace DAZI.Apex.Tools
 {
     public static class ApexPackageDoctor
     {
-        private static readonly string[] RequiredShaders =
-        {
-            "Apex/Core/Debug",
-            "Apex/Avatar/Standard",
-            "Apex/World/Standard",
-            "Apex/World/VertexBlendLite",
-            "Apex/Water/PoolLite",
-            "Apex/Water/OpaqueMobile",
-            "Apex/Fog/CardLite",
-            "Apex/FX/HologramLite",
-            "Apex/FX/DissolveCutout",
-            "Apex/Screens/VideoPanelLite",
-            "Apex/Screens/LEDPanelLite",
-            "Apex/Toon/CharacterLite"
-        };
-
         [MenuItem("Apex/Validation/Run Full Project Validation")]
         public static void RunFullValidation()
         {
@@ -33,6 +17,7 @@ namespace DAZI.Apex.Tools
             var warnings = new List<string>();
             ValidateShaders(errors, warnings);
             ValidateMaterials(errors, warnings);
+            ApexShaderCompilerAudit.AppendCompilerDiagnostics(errors, warnings, true);
             PrintReport("Apex full project validation", errors, warnings);
         }
 
@@ -42,6 +27,7 @@ namespace DAZI.Apex.Tools
             var warnings = new List<string>();
             ValidateShaders(errors, warnings);
             ValidateMaterials(errors, warnings);
+            ApexShaderCompilerAudit.AppendCompilerDiagnostics(errors, warnings, true);
             PrintReport("Apex batch project validation", errors, warnings);
             if (errors.Count > 0)
             {
@@ -74,17 +60,18 @@ namespace DAZI.Apex.Tools
         public static void PrintCompatibilityContract()
         {
             Debug.Log(
-                "Apex 0.3 compatibility contract:\n" +
+                "Apex 0.3.2 compatibility contract:\n" +
                 "• Unity/VRChat baseline: Unity 2022.3.22f1, Built-in Render Pipeline.\n" +
                 "• Custom Apex world shaders: designed for Windows PCVR, Android/Quest, and iOS world builds.\n" +
                 "• Custom Apex avatar shaders: PCVR/Desktop only in VRChat. Mobile avatar uploads must use SDK-provided VRChat/Mobile shaders.\n" +
+                "• Full validation synchronously compiles the current Apex material/pass profiles and writes a compiler report.\n" +
                 "• Use Apex > Mobile Avatar Fallback Builder to generate a legal mobile material."
             );
         }
 
         private static void ValidateShaders(List<string> errors, List<string> warnings)
         {
-            foreach (var shaderName in RequiredShaders)
+            foreach (var shaderName in ApexShaderCatalog.RequiredShaderNames)
             {
                 var shader = Shader.Find(shaderName);
                 if (shader == null)
@@ -93,11 +80,7 @@ namespace DAZI.Apex.Tools
                     continue;
                 }
 
-                if (ShaderUtil.ShaderHasError(shader))
-                {
-                    errors.Add($"Shader has compile errors in the current editor: {shaderName}");
-                }
-                else if (!shader.isSupported)
+                if (!shader.isSupported)
                 {
                     warnings.Add($"Shader is present but unsupported by the current editor graphics API: {shaderName}");
                 }
