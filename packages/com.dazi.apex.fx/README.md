@@ -3,11 +3,11 @@
 Hologram effect shader.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **Windows PCVR/Desktop, Android/Quest worlds, and iOS worlds; profile transparency**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Masked additive output
 - World-space scanlines
@@ -15,6 +15,7 @@ Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragm
 - Fresnel edge boost
 - Lightweight vertex glitch
 - SpectraOverdrive group/band routing
+- `Apex/FX/DissolveCutout` with lit edge emission, shadows, Meta output, and quality tiers
 
 ## Dependencies
 

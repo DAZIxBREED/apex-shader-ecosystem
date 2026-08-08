@@ -39,3 +39,11 @@ dist/
 # Python
 __pycache__/
 *.py[cod]
+
+# Embedded Unity validation project generated state
+ValidationProject/Library/
+ValidationProject/Logs/
+ValidationProject/Temp/
+ValidationProject/Obj/
+ValidationProject/UserSettings/
+ValidationProject/Assets/ApexValidation/Generated/

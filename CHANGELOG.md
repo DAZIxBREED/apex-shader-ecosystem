@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.3.0 — Quality tiers, validation project, and second shader families
+
+### Added
+
+- Core local quality profiles and reflection-probe environment specular.
+- World two-layer vertex blend shader, opaque mobile water, lit dissolve/cutout FX, and procedural LED video panel.
+- SpectraOverdrive shader ABI 1.0 with optional intensity/strobe safety limits and neutral backward-compatible defaults.
+- Material quality profile commands and Avatar skin, cloth, hair, and hard-surface presets.
+- Batch mobile-avatar fallback generation with source/fallback JSON pairing records.
+- Apex-only build-time shader variant stripping and project shader-keyword usage reporting.
+- Live Unity/Udon global bridge diagnostics.
+- Automated validation scene generation with directional, point, and spot lights plus a realtime reflection probe.
+- Dedicated Unity 2022.3.22f1 `ValidationProject` with a batch-mode entry point.
+
+### Changed
+
+- World, Avatar, and Toon base shaders can consume reflection probes outside the Mobile quality tier.
+- Package Doctor validates all new shader families, contradictory quality keywords, and expensive mobile vertex-blend usage.
+- Documentation now treats Unity compilation/device testing as an executable matrix rather than a future concept.
+
+### Validation still required
+
+- Clean Unity import and shader compilation on Direct3D 11, Vulkan/GLES3, and Metal.
+- VRChat SDK world and avatar build tests.
+- Single-pass stereo, device profiling, and visual comparison captures.
+
+
 ## 0.2.0 — Foundation hardening and first distinct shader families
 
 ### Added

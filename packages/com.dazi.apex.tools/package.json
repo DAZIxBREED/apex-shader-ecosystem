@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.tools",
   "displayName": "Apex Tools",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
-  "description": "Editor validation, VRChat mobile avatar fallback generation, and packed metallic/occlusion/effect/smoothness texture building.",
+  "description": "Editor quality profiles, shader variant stripping/reporting, validation-scene generation, bridge diagnostics, avatar presets, VRChat mobile fallback pairing, Package Doctor, and packed-mask authoring.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,6 +20,6 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.2.0"
+    "com.dazi.apex.core": "0.3.0"
   }
 }

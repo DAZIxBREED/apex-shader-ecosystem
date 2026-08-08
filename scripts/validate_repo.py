@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static repository validator for the Apex Unity package monorepo."""
+"""Static validation for the Apex Unity package monorepo."""
 from __future__ import annotations
 
 import json
@@ -9,37 +9,39 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ROOT / "packages"
-EXPECTED_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-REQUIRED = [
+VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+REQUIRED = (
     "package.json",
     "README.md",
     "LICENSE.txt",
     "Documentation/PROJECT_WORKUP.md",
     "Documentation/PLATFORM_BUDGET.md",
-]
-LOCAL_INCLUDE = re.compile(r'#include\s+"Packages/([^/"]+)/(.*?)"')
-SHADER_NAME = re.compile(r'\bShader\s+"([^"]+)"')
-SHADER_PROPERTY = re.compile(r'^\s*(?:\[[^\]]+\]\s*)*(_\w+)\s*\(', re.MULTILINE)
-MATERIAL_UNIFORM = re.compile(r'\b(?:sampler(?:1D|2D|3D|CUBE)|(?:half|float|fixed)(?:[234](?:x[234])?)?)\s+(_\w+)\s*;')
-TARGET = re.compile(r'#pragma\s+target\s+([0-9.]+)')
-PARAMETER_TRANSFORM_TEX = re.compile(r'TRANSFORM_TEX\s*\([^,]+,\s*([a-z]\w*)\s*\)')
-COMMENT_BLOCK = re.compile(r'/\*.*?\*/', re.DOTALL)
-COMMENT_LINE = re.compile(r'//.*')
-MOBILE_WORLD_PACKAGES = {
-    "com.dazi.apex.world",
-    "com.dazi.apex.water",
-    "com.dazi.apex.fog",
-    "com.dazi.apex.fx",
-    "com.dazi.apex.screens",
-    "com.dazi.apex.toon",
+)
+MOBILE_WORLD = {
+    "com.dazi.apex.world", "com.dazi.apex.water", "com.dazi.apex.fog",
+    "com.dazi.apex.fx", "com.dazi.apex.screens", "com.dazi.apex.toon",
 }
-FORBIDDEN_MOBILE_PATTERNS = {
-    "GrabPass": re.compile(r'\bGrabPass\b'),
-    "geometry stage": re.compile(r'#pragma\s+geometry\b'),
-    "hull stage": re.compile(r'#pragma\s+hull\b'),
-    "domain stage": re.compile(r'#pragma\s+domain\b'),
-    "compute include": re.compile(r'\.compute\b'),
+EXPECTED_SHADERS = {
+    "Apex/Core/Debug", "Apex/Avatar/Standard", "Apex/World/Standard",
+    "Apex/World/VertexBlendLite", "Apex/Water/PoolLite",
+    "Apex/Water/OpaqueMobile", "Apex/Fog/CardLite",
+    "Apex/FX/HologramLite", "Apex/FX/DissolveCutout",
+    "Apex/Screens/VideoPanelLite", "Apex/Screens/LEDPanelLite",
+    "Apex/Toon/CharacterLite",
 }
+QUALITY_SHADERS = (
+    "com.dazi.apex.avatar/Runtime/Shaders/Standard.shader",
+    "com.dazi.apex.world/Runtime/Shaders/Standard.shader",
+    "com.dazi.apex.world/Runtime/Shaders/VertexBlendLite.shader",
+    "com.dazi.apex.fx/Runtime/Shaders/DissolveCutout.shader",
+    "com.dazi.apex.toon/Runtime/Shaders/CharacterLite.shader",
+)
+INCLUDE_RE = re.compile(r'#include\s+"Packages/([^/"]+)/(.*?)"')
+SHADER_RE = re.compile(r'\bShader\s+"([^"]+)"')
+PROPERTY_RE = re.compile(r'^\s*(?:\[[^\]]+\]\s*)*(_\w+)\s*\(', re.MULTILINE)
+TARGET_RE = re.compile(r'#pragma\s+target\s+([0-9.]+)')
+BLOCK_COMMENTS = re.compile(r'/\*.*?\*/', re.DOTALL)
+LINE_COMMENTS = re.compile(r'//.*')
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -47,11 +49,15 @@ manifests: dict[str, tuple[Path, dict]] = {}
 shader_names: dict[str, Path] = {}
 
 
-def without_comments(text: str) -> str:
-    return COMMENT_LINE.sub("", COMMENT_BLOCK.sub("", text))
+def fail(message: str) -> None:
+    errors.append(message)
 
 
-def balanced(text: str, opening: str, closing: str) -> bool:
+def clean(text: str) -> str:
+    return LINE_COMMENTS.sub("", BLOCK_COMMENTS.sub("", text))
+
+
+def balanced(text: str, opening: str = "{", closing: str = "}") -> bool:
     depth = 0
     for character in text:
         if character == opening:
@@ -63,228 +69,178 @@ def balanced(text: str, opening: str, closing: str) -> bool:
     return depth == 0
 
 
-if EXPECTED_VERSION != "0.2.0":
-    warnings.append(f"development version is {EXPECTED_VERSION}; validator was authored for 0.2.0")
+def require_text(path: Path, needles: tuple[str, ...]) -> None:
+    if not path.exists():
+        fail(f"missing required file: {path.relative_to(ROOT)}")
+        return
+    text = path.read_text(encoding="utf-8")
+    for needle in needles:
+        if needle not in text:
+            fail(f"{path.relative_to(ROOT)} missing required contract: {needle}")
+
 
 try:
     repository = json.loads((ROOT / "repository.json").read_text(encoding="utf-8"))
-    if repository.get("version") != EXPECTED_VERSION:
-        errors.append("repository.json version does not match VERSION")
-    if repository.get("unity") != "2022.3.22f1":
-        errors.append("repository.json Unity baseline must be 2022.3.22f1")
 except Exception as exc:
-    errors.append(f"invalid repository.json: {exc}")
+    fail(f"invalid repository.json: {exc}")
     repository = {}
+if repository.get("version") != VERSION:
+    fail("repository.json version does not match VERSION")
+if repository.get("unity") != "2022.3.22f1":
+    fail("repository.json Unity baseline must be 2022.3.22f1")
 
-for package_dir in sorted(p for p in PACKAGES.iterdir() if p.is_dir()):
-    for required in REQUIRED:
-        if not (package_dir / required).exists():
-            errors.append(f"{package_dir.name}: missing {required}")
-
-    manifest_path = package_dir / "package.json"
+for package_dir in sorted(path for path in PACKAGES.iterdir() if path.is_dir()):
+    for relative in REQUIRED:
+        if not (package_dir / relative).exists():
+            fail(f"{package_dir.name}: missing {relative}")
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest = json.loads((package_dir / "package.json").read_text(encoding="utf-8"))
     except Exception as exc:
-        errors.append(f"{package_dir.name}: invalid package.json: {exc}")
+        fail(f"{package_dir.name}: invalid package.json: {exc}")
         continue
-
     name = manifest.get("name")
     if name != package_dir.name:
-        errors.append(f"{package_dir.name}: manifest name is {name!r}")
-    if manifest.get("version") != EXPECTED_VERSION:
-        errors.append(f"{package_dir.name}: version is {manifest.get('version')!r}, expected {EXPECTED_VERSION}")
+        fail(f"{package_dir.name}: manifest name is {name!r}")
+    if manifest.get("version") != VERSION:
+        fail(f"{package_dir.name}: version must be {VERSION}")
     if manifest.get("unity") != "2022.3":
-        errors.append(f"{package_dir.name}: package Unity baseline must be 2022.3")
+        fail(f"{package_dir.name}: Unity baseline must be 2022.3")
     for sample in manifest.get("samples", []):
-        sample_path = package_dir / str(sample.get("path", ""))
         if not sample.get("displayName") or not sample.get("path"):
-            errors.append(f"{package_dir.name}: sample entries require displayName and path")
-        elif not sample_path.exists():
-            errors.append(f"{package_dir.name}: sample path does not exist: {sample_path.relative_to(ROOT)}")
-
-    if (package_dir / "Samples~").exists() and not manifest.get("samples"):
-        warnings.append(f"{package_dir.name}: contains Samples~ but package.json exposes no samples")
-
+            fail(f"{package_dir.name}: sample entries require displayName and path")
+        elif not (package_dir / sample["path"]).exists():
+            fail(f"{package_dir.name}: missing sample path {sample['path']}")
     manifests[name] = (package_dir, manifest)
 
-for name, (_package_dir, manifest) in manifests.items():
-    for dependency, version in manifest.get("dependencies", {}).items():
-        if dependency.startswith("com.dazi.apex."):
-            if dependency not in manifests:
-                errors.append(f"{name}: missing local dependency package {dependency}")
-            elif version != manifests[dependency][1].get("version"):
-                errors.append(
-                    f"{name}: dependency {dependency} uses {version}, "
-                    f"local package is {manifests[dependency][1].get('version')}"
-                )
+for name, (_, manifest) in manifests.items():
+    for dependency, dependency_version in manifest.get("dependencies", {}).items():
+        if not dependency.startswith("com.dazi.apex."):
+            continue
+        if dependency not in manifests:
+            fail(f"{name}: missing local dependency {dependency}")
+        elif dependency_version != VERSION:
+            fail(f"{name}: dependency {dependency} must use {VERSION}")
 
 for package_name, (package_dir, manifest) in manifests.items():
-    declared_dependencies = set(manifest.get("dependencies", {}))
+    dependencies = set(manifest.get("dependencies", {}))
     for asset in sorted(package_dir.rglob("*")):
         if asset.name.endswith(".meta"):
             continue
-
         meta = asset.with_name(asset.name + ".meta")
         if not meta.exists():
-            errors.append(f"missing Unity metadata: {meta.relative_to(ROOT)}")
-
+            fail(f"missing Unity metadata: {meta.relative_to(ROOT)}")
         if not asset.is_file() or asset.suffix not in {".shader", ".cginc", ".hlsl"}:
             continue
-
         text = asset.read_text(encoding="utf-8")
-        cleaned = without_comments(text)
-
-        for included_package, relative in LOCAL_INCLUDE.findall(text):
+        stripped = clean(text)
+        if not balanced(stripped):
+            fail(f"{asset.relative_to(ROOT)} has unbalanced braces")
+        if stripped.count("CGPROGRAM") != stripped.count("ENDCG"):
+            fail(f"{asset.relative_to(ROOT)} has mismatched CGPROGRAM/ENDCG")
+        if re.search(r'TRANSFORM_TEX\s*\([^,]+,\s*[a-z]\w*\s*\)', stripped):
+            fail(f"{asset.relative_to(ROOT)} passes a function parameter to TRANSFORM_TEX")
+        for included_package, relative in INCLUDE_RE.findall(text):
             target = PACKAGES / included_package / relative
             if not target.exists():
-                errors.append(f"{asset.relative_to(ROOT)} includes missing {target.relative_to(ROOT)}")
-            if included_package != package_name and included_package not in declared_dependencies:
-                errors.append(
-                    f"{package_name}: {asset.relative_to(package_dir)} includes {included_package} "
-                    "without declaring it as a package dependency"
-                )
-
-        if not balanced(cleaned, "{", "}"):
-            errors.append(f"{asset.relative_to(ROOT)} has unbalanced braces")
-
-        for parameter_name in PARAMETER_TRANSFORM_TEX.findall(cleaned):
-            errors.append(
-                f"{asset.relative_to(ROOT)} passes function parameter {parameter_name!r} to TRANSFORM_TEX; "
-                "use the explicit ST vector because Unity's macro token-pastes <name>_ST"
-            )
-        if cleaned.count("CGPROGRAM") != cleaned.count("ENDCG"):
-            errors.append(f"{asset.relative_to(ROOT)} has mismatched CGPROGRAM/ENDCG blocks")
-        if cleaned.count("HLSLPROGRAM") != cleaned.count("ENDHLSL"):
-            errors.append(f"{asset.relative_to(ROOT)} has mismatched HLSLPROGRAM/ENDHLSL blocks")
-
+                fail(f"{asset.relative_to(ROOT)} includes missing {target.relative_to(ROOT)}")
+            if included_package != package_name and included_package not in dependencies:
+                fail(f"{package_name}: include of {included_package} lacks package dependency")
         if asset.suffix == ".shader":
-            names = SHADER_NAME.findall(cleaned)
+            names = SHADER_RE.findall(stripped)
             if len(names) != 1:
-                errors.append(f"{asset.relative_to(ROOT)} must declare exactly one Shader name")
+                fail(f"{asset.relative_to(ROOT)} must declare exactly one Shader name")
             else:
                 shader_name = names[0]
                 if shader_name in shader_names:
-                    errors.append(
-                        f"duplicate shader name {shader_name!r}: "
-                        f"{shader_names[shader_name].relative_to(ROOT)} and {asset.relative_to(ROOT)}"
-                    )
+                    fail(f"duplicate Shader name: {shader_name}")
                 shader_names[shader_name] = asset
-
-            properties = SHADER_PROPERTY.findall(cleaned)
+            properties = PROPERTY_RE.findall(stripped)
             if len(properties) != len(set(properties)):
-                errors.append(f"{asset.relative_to(ROOT)} declares duplicate ShaderLab properties")
-            property_set = set(properties)
-            for uniform in MATERIAL_UNIFORM.findall(cleaned):
-                if uniform in property_set:
-                    continue
-                if uniform.endswith("_ST") and uniform[:-3] in property_set:
-                    continue
-                errors.append(
-                    f"{asset.relative_to(ROOT)} declares material uniform {uniform} without a matching ShaderLab property"
-                )
+                fail(f"{asset.relative_to(ROOT)} has duplicate ShaderLab properties")
+            if "#pragma multi_compile_instancing" not in stripped:
+                fail(f"{asset.relative_to(ROOT)} lacks instancing variants")
+            if "UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX" not in stripped:
+                fail(f"{asset.relative_to(ROOT)} lacks fragment stereo setup")
+        if package_name in MOBILE_WORLD:
+            for forbidden in (r'\bGrabPass\b', r'#pragma\s+(?:geometry|hull|domain)\b', r'\.compute\b'):
+                if re.search(forbidden, stripped):
+                    fail(f"{asset.relative_to(ROOT)} uses a forbidden mobile-world construct")
+            for target in TARGET_RE.findall(stripped):
+                if float(target) > 3.0:
+                    fail(f"{asset.relative_to(ROOT)} exceeds shader model 3.0")
 
-            if "#pragma multi_compile_instancing" not in cleaned:
-                errors.append(f"{asset.relative_to(ROOT)} must compile an instancing variant")
-            if "UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX" not in cleaned:
-                errors.append(f"{asset.relative_to(ROOT)} has no fragment-stage stereo eye setup")
+missing_shaders = sorted(EXPECTED_SHADERS - set(shader_names))
+if missing_shaders:
+    fail("missing expected shaders: " + ", ".join(missing_shaders))
 
-        if package_name in MOBILE_WORLD_PACKAGES:
-            for label, pattern in FORBIDDEN_MOBILE_PATTERNS.items():
-                if pattern.search(cleaned):
-                    errors.append(f"{asset.relative_to(ROOT)} uses forbidden mobile-world construct: {label}")
-            for target_value in TARGET.findall(cleaned):
-                if float(target_value) > 3.0:
-                    errors.append(
-                        f"{asset.relative_to(ROOT)} targets shader model {target_value}; "
-                        "mobile-world packages are capped at 3.0"
-                    )
+require_text(
+    PACKAGES / "com.dazi.apex.spectraoverdrive/Runtime/HLSL/ApexSpectraOverdrive_Bridge.cginc",
+    (
+        "#define APEX_SPECTRA_ABI_MAJOR 1", "#define APEX_SPECTRA_ABI_MINOR 0",
+        "_UdonApexSpectraActive", "_UdonApexSpectraSafetyActive",
+        "_UdonApexSpectraSafety",
+    ),
+)
+require_text(
+    PACKAGES / "com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc",
+    ("#define APEX_VERSION_MAJOR 0", "#define APEX_VERSION_MINOR 3", "#define APEX_VERSION_PATCH 0"),
+)
+for filename, direct_includes in {
+    "ApexCore_Surface.cginc": ("ApexCore_Common.cginc", "ApexCore_Packing.cginc"),
+    "ApexCore_Lighting.cginc": ("ApexCore_Surface.cginc",),
+    "ApexCore_Debug.cginc": ("ApexCore_Lighting.cginc",),
+    "ApexCore_Environment.cginc": ("ApexCore_Quality.cginc", "ApexCore_Lighting.cginc"),
+}.items():
+    require_text(PACKAGES / "com.dazi.apex.core/Runtime/HLSL" / filename, direct_includes)
 
-spectra_bridge = PACKAGES / "com.dazi.apex.spectraoverdrive/Runtime/HLSL/ApexSpectraOverdrive_Bridge.cginc"
-if spectra_bridge.exists():
-    spectra_text = spectra_bridge.read_text(encoding="utf-8")
-    for required_global in (
-        "_UdonApexSpectraActive",
-        "_UdonApexSpectraIntensity",
-        "_UdonApexSpectraColor",
-        "_UdonApexSpectraBands",
-        "_UdonApexSpectraBlackout",
-    ):
-        if required_global not in spectra_text:
-            errors.append(f"SpectraOverdrive bridge missing VRChat-safe global {required_global}")
+quality_contract = "#pragma shader_feature_local _ _APEX_QUALITY_STANDARD _APEX_QUALITY_MOBILE _APEX_QUALITY_HIGH"
+for relative in QUALITY_SHADERS:
+    path = PACKAGES / relative
+    require_text(path, (quality_contract, "[KeywordEnum(Standard,Mobile,High)] _APEX_QUALITY", "_EnvironmentStrength"))
 
-integration_bridge = PACKAGES / "com.dazi.apex.integrations/Runtime/HLSL/ApexIntegration_OptionalFallbacks.cginc"
-if integration_bridge.exists():
-    integration_text = integration_bridge.read_text(encoding="utf-8")
-    if "_UdonApexIntegrationActive" not in integration_text:
-        errors.append("Integration bridge missing VRChat-safe _UdonApexIntegrationActive global")
-
-core_common = PACKAGES / "com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
-if core_common.exists():
-    core_text = core_common.read_text(encoding="utf-8")
-    version_macros = (
-        f"#define APEX_VERSION_MAJOR {EXPECTED_VERSION.split('.')[0]}",
-        f"#define APEX_VERSION_MINOR {EXPECTED_VERSION.split('.')[1]}",
-        f"#define APEX_VERSION_PATCH {EXPECTED_VERSION.split('.')[2]}",
-    )
-    for macro in version_macros:
-        if macro not in core_text:
-            errors.append(f"ApexCore_Common.cginc missing version macro: {macro}")
-
-avatar_readme = PACKAGES / "com.dazi.apex.avatar/README.md"
-if avatar_readme.exists():
-    avatar_text = avatar_readme.read_text(encoding="utf-8").lower()
-    if "pcvr/desktop custom shader" not in avatar_text or "vrchat/mobile" not in avatar_text:
-        errors.append("Apex Avatar README must state the PC custom shader and SDK mobile fallback contract")
-
-# VRChat fallback property transfer depends on exact tag/property names. Keep both
-# custom PC character shaders aligned with the supported toon-standard fallback.
-for relative_shader in (
+for relative in (
     "com.dazi.apex.avatar/Runtime/Shaders/Standard.shader",
     "com.dazi.apex.toon/Runtime/Shaders/CharacterLite.shader",
 ):
-    shader_path = PACKAGES / relative_shader
-    if not shader_path.exists():
-        errors.append(f"missing character fallback shader: {relative_shader}")
-        continue
-    shader_text = without_comments(shader_path.read_text(encoding="utf-8"))
-    if '"VRCFallback"="toonstandard"' not in shader_text:
-        errors.append(f"{relative_shader} must declare exact VRCFallback=toonstandard metadata")
-    fallback_properties = {"_MainTex", "_Color", "_BumpMap", "_BumpScale"}
-    declared_properties = set(SHADER_PROPERTY.findall(shader_text))
-    missing_fallback_properties = sorted(fallback_properties - declared_properties)
-    if missing_fallback_properties:
-        errors.append(
-            f"{relative_shader} is missing Standard-compatible fallback properties: "
-            + ", ".join(missing_fallback_properties)
-        )
+    path = PACKAGES / relative
+    require_text(path, ('"VRCFallback"="toonstandard"', "_MainTex", "_Color", "_BumpMap", "_BumpScale"))
 
-expected_packages = sorted(manifests)
-listed_packages = sorted(repository.get("packages", []))
-if expected_packages != listed_packages:
-    errors.append("repository.json package list does not match package directories")
+if sorted(manifests) != sorted(repository.get("packages", [])):
+    fail("repository.json package list does not match package directories")
 
-tools_dir = PACKAGES / "com.dazi.apex.tools"
-if tools_dir.exists():
-    for source in tools_dir.rglob("*.cs"):
-        if "Editor" not in source.parts:
-            errors.append(f"Apex Tools runtime leak: {source.relative_to(ROOT)} is not under Editor/")
-        source_text = source.read_text(encoding="utf-8")
-        if "#if UNITY_EDITOR" not in source_text or "#endif" not in source_text:
-            errors.append(f"{source.relative_to(ROOT)} must be guarded by UNITY_EDITOR")
-        if not balanced(without_comments(source_text), "{", "}"):
-            errors.append(f"{source.relative_to(ROOT)} has unbalanced C# braces")
+validation = ROOT / "ValidationProject"
+try:
+    validation_dependencies = json.loads((validation / "Packages/manifest.json").read_text(encoding="utf-8"))["dependencies"]
+except Exception as exc:
+    fail(f"invalid ValidationProject manifest: {exc}")
+    validation_dependencies = {}
+for package_name in manifests:
+    expected = f"file:../../packages/{package_name}"
+    if validation_dependencies.get(package_name) != expected:
+        fail(f"ValidationProject must reference {package_name} as {expected}")
+require_text(validation / "ProjectSettings/ProjectVersion.txt", ("2022.3.22f1",))
+require_text(validation / "Assets/Editor/ApexValidationProjectEntry.cs", ("ApexValidationProjectEntry", "RunBatch"))
+for asset in (validation / "Assets").rglob("*"):
+    if not asset.name.endswith(".meta") and not asset.with_name(asset.name + ".meta").exists():
+        fail(f"missing Unity metadata: {asset.with_name(asset.name + '.meta').relative_to(ROOT)}")
 
-for sample_material in (PACKAGES / "com.dazi.apex.examples/Samples~").rglob("*.mat"):
-    material_text = sample_material.read_text(encoding="utf-8")
-    if "m_EnableInstancingVariants: 1" not in material_text:
-        warnings.append(f"sample material has instancing disabled: {sample_material.relative_to(ROOT)}")
+for source in (PACKAGES / "com.dazi.apex.tools").rglob("*.cs"):
+    text = source.read_text(encoding="utf-8")
+    if "Editor" not in source.parts:
+        fail(f"Apex Tools runtime leak: {source.relative_to(ROOT)}")
+    if "#if UNITY_EDITOR" not in text or "#endif" not in text:
+        fail(f"{source.relative_to(ROOT)} lacks UNITY_EDITOR guard")
+    if not balanced(clean(text)):
+        fail(f"{source.relative_to(ROOT)} has unbalanced C# braces")
 
-for package_dir, manifest in manifests.values():
-    description = str(manifest.get("description", "")).lower()
-    if "placeholder" in description or "stub" in description:
-        warnings.append(f"{package_dir.name}: description still contains placeholder/stub wording")
+samples = sorted((PACKAGES / "com.dazi.apex.examples/Samples~").rglob("*.mat"))
+if len(samples) != len(EXPECTED_SHADERS):
+    fail(f"expected {len(EXPECTED_SHADERS)} sample materials, found {len(samples)}")
+for sample in samples:
+    if "m_EnableInstancingVariants: 1" not in sample.read_text(encoding="utf-8"):
+        warnings.append(f"sample material has instancing disabled: {sample.relative_to(ROOT)}")
 
-print(f"Validated {len(manifests)} Apex packages at version {EXPECTED_VERSION}.")
+print(f"Validated {len(manifests)} Apex packages at version {VERSION}.")
 print(f"Discovered {len(shader_names)} unique ShaderLab shaders.")
 for warning in warnings:
     print(f"WARNING: {warning}")

@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 8beaa4d756cf37efc599afcdc0eb8097, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _APEX_QUALITY_STANDARD
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -25,6 +26,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _APEX_QUALITY: 0
     - _DebugMode: 0
     - _BumpScale: 1
     - _SpectraAmount: 0

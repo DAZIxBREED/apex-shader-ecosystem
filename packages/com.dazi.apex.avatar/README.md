@@ -3,11 +3,11 @@
 PCVR/Desktop custom avatar material shader.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **PCVR/Desktop custom shader; Android/Quest/iOS use generated SDK mobile fallback**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Packed PBR inputs
 - Soft wrap lighting and rim light

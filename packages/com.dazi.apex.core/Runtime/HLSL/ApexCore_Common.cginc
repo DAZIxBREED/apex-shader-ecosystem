@@ -6,7 +6,7 @@
 #include "AutoLight.cginc"
 
 #define APEX_VERSION_MAJOR 0
-#define APEX_VERSION_MINOR 2
+#define APEX_VERSION_MINOR 3
 #define APEX_VERSION_PATCH 0
 
 #define APEX_PI 3.14159265h

@@ -1,6 +1,10 @@
 #ifndef APEX_CORE_SURFACE_INCLUDED
 #define APEX_CORE_SURFACE_INCLUDED
 
+#include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc"
+
+#include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Packing.cginc"
+
 inline ApexSurfaceData ApexInitializeSurface()
 {
     ApexSurfaceData surface;

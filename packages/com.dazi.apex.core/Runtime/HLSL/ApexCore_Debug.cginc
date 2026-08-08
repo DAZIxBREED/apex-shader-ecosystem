@@ -1,6 +1,8 @@
 #ifndef APEX_CORE_DEBUG_INCLUDED
 #define APEX_CORE_DEBUG_INCLUDED
 
+#include "Packages/com.dazi.apex.core/Runtime/HLSL/ApexCore_Lighting.cginc"
+
 inline half3 ApexDebugColor(
     int mode,
     ApexSurfaceData surface,

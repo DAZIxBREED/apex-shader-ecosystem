@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using System;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,26 +9,75 @@ namespace DAZI.Apex.Tools
 {
     public sealed class ApexMobileAvatarFallbackBuilder : EditorWindow
     {
-        private enum MobileShaderProfile
+        public enum MobileShaderProfile
         {
             ToonStandard,
             StandardLite,
             ToonLit
         }
 
+        [Serializable]
+        private sealed class PairingRecord
+        {
+            public string sourceMaterialGuid;
+            public string sourceMaterialPath;
+            public string mobileMaterialGuid;
+            public string mobileMaterialPath;
+            public string mobileShader;
+            public string profile;
+            public string generatedUtc;
+        }
+
         [SerializeField] private Material sourceMaterial;
         [SerializeField] private MobileShaderProfile profile = MobileShaderProfile.ToonStandard;
 
-        [MenuItem("Apex/Mobile Avatar Fallback Builder")]
+        [MenuItem("Apex/Mobile Avatar/Fallback Builder")]
         private static void Open()
         {
             GetWindow<ApexMobileAvatarFallbackBuilder>("Apex Mobile Fallback");
         }
 
+        [MenuItem("Apex/Mobile Avatar/Create Fallbacks For Selected Materials")]
+        private static void CreateSelectedFallbacks()
+        {
+            var materials = Selection.objects.OfType<Material>()
+                .Where(IsApexPcAvatarMaterial)
+                .Distinct()
+                .ToArray();
+            if (materials.Length == 0)
+            {
+                Debug.LogWarning("Apex: select one or more Apex Avatar or Apex Toon materials.");
+                return;
+            }
+
+            const string outputFolder = "Assets/ApexMobileFallbacks";
+            Directory.CreateDirectory(outputFolder);
+            var created = 0;
+            foreach (var source in materials)
+            {
+                var fileName = SanitizeFileName(source.name) + "_Mobile.mat";
+                var outputPath = AssetDatabase.GenerateUniqueAssetPath(outputFolder + "/" + fileName);
+                if (CreateFallbackMaterial(source, MobileShaderProfile.ToonStandard, outputPath) != null)
+                {
+                    created++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"Apex created {created} mobile avatar fallback material(s) in {outputFolder}.");
+        }
+
+        [MenuItem("Apex/Mobile Avatar/Create Fallbacks For Selected Materials", true)]
+        private static bool ValidateCreateSelectedFallbacks()
+        {
+            return Selection.objects.OfType<Material>().Any(IsApexPcAvatarMaterial);
+        }
+
         private void OnGUI()
         {
             EditorGUILayout.HelpBox(
-                "VRChat mobile avatars cannot use custom Apex shaders. This tool creates a second material using an SDK-provided VRChat/Mobile shader and transfers compatible textures and colors.",
+                "VRChat mobile avatars cannot use custom Apex shaders. This tool creates a second material using an SDK-provided VRChat/Mobile shader, transfers compatible values, and writes a source/fallback pairing record.",
                 MessageType.Info
             );
 
@@ -49,12 +100,11 @@ namespace DAZI.Apex.Tools
                 return;
             }
 
-            var shader = FindMobileShader(profile);
-            if (shader == null)
+            if (!IsApexPcAvatarMaterial(sourceMaterial))
             {
                 EditorUtility.DisplayDialog(
-                    "VRChat mobile shader not found",
-                    "Install or update the VRChat Avatars SDK, then retry. The builder searched the SDK shader names for the selected profile.",
+                    "Unsupported source material",
+                    "Choose an Apex/Avatar or Apex/Toon PC material.",
                     "OK"
                 );
                 return;
@@ -72,28 +122,57 @@ namespace DAZI.Apex.Tools
                 return;
             }
 
+            var target = CreateFallbackMaterial(sourceMaterial, profile, path);
+            if (target != null)
+            {
+                Selection.activeObject = target;
+                EditorGUIUtility.PingObject(target);
+            }
+        }
+
+        public static Material CreateFallbackMaterial(
+            Material source,
+            MobileShaderProfile selectedProfile,
+            string outputPath)
+        {
+            if (source == null || string.IsNullOrWhiteSpace(outputPath))
+            {
+                return null;
+            }
+
+            var shader = FindMobileShader(selectedProfile);
+            if (shader == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "VRChat mobile shader not found",
+                    "Install or update the VRChat Avatars SDK, then retry. The builder searched the SDK shader names for the selected profile.",
+                    "OK"
+                );
+                return null;
+            }
+
             var target = new Material(shader)
             {
-                name = sourceMaterial.name + " Mobile",
+                name = source.name + " Mobile",
                 enableInstancing = true
             };
 
-            TransferTexture(sourceMaterial, target, new[] { "_BaseMap", "_MainTex" }, new[] { "_MainTex", "_BaseMap" });
-            TransferTexture(sourceMaterial, target, new[] { "_NormalMap", "_BumpMap" }, new[] { "_BumpMap", "_NormalMap" });
-            TransferTexture(sourceMaterial, target, new[] { "_MaskMap", "_MetallicGlossMap" }, new[] { "_MetallicGlossMap", "_MaskMap" });
-            TransferColor(sourceMaterial, target, new[] { "_BaseColor", "_Color" }, new[] { "_Color", "_BaseColor" });
-            TransferColor(sourceMaterial, target, new[] { "_EmissionColor" }, new[] { "_EmissionColor" });
-            TransferFloat(sourceMaterial, target, new[] { "_NormalScale", "_BumpScale" }, new[] { "_BumpScale", "_NormalScale" });
-            TransferFloat(sourceMaterial, target, new[] { "_Metallic" }, new[] { "_Metallic" });
-            TransferFloat(sourceMaterial, target, new[] { "_Smoothness" }, new[] { "_Glossiness", "_Smoothness" });
-            TransferFloat(sourceMaterial, target, new[] { "_Cutoff" }, new[] { "_Cutoff" });
+            TransferTexture(source, target, new[] { "_BaseMap", "_MainTex" }, new[] { "_MainTex", "_BaseMap" });
+            TransferTexture(source, target, new[] { "_NormalMap", "_BumpMap" }, new[] { "_BumpMap", "_NormalMap" });
+            TransferTexture(source, target, new[] { "_MaskMap", "_MetallicGlossMap" }, new[] { "_MetallicGlossMap", "_MaskMap" });
+            TransferColor(source, target, new[] { "_BaseColor", "_Color" }, new[] { "_Color", "_BaseColor" });
+            TransferColor(source, target, new[] { "_EmissionColor" }, new[] { "_EmissionColor" });
+            TransferFloat(source, target, new[] { "_NormalScale", "_BumpScale" }, new[] { "_BumpScale", "_NormalScale" });
+            TransferFloat(source, target, new[] { "_Metallic" }, new[] { "_Metallic" });
+            TransferFloat(source, target, new[] { "_Smoothness" }, new[] { "_Glossiness", "_Smoothness" });
+            TransferFloat(source, target, new[] { "_Cutoff" }, new[] { "_Cutoff" });
 
-            AssetDatabase.CreateAsset(target, path);
+            AssetDatabase.CreateAsset(target, outputPath);
             AssetDatabase.SaveAssets();
-            AssetDatabase.ImportAsset(path);
-            Selection.activeObject = target;
-            EditorGUIUtility.PingObject(target);
-            Debug.Log($"Apex created mobile avatar fallback: {path} using {shader.name}", target);
+            AssetDatabase.ImportAsset(outputPath);
+            WritePairingRecord(source, target, selectedProfile, outputPath);
+            Debug.Log($"Apex created mobile avatar fallback: {outputPath} using {shader.name}", target);
+            return target;
         }
 
         private static Shader FindMobileShader(MobileShaderProfile selectedProfile)
@@ -121,6 +200,55 @@ namespace DAZI.Apex.Tools
                 }
             }
             return null;
+        }
+
+        private static void WritePairingRecord(
+            Material source,
+            Material target,
+            MobileShaderProfile selectedProfile,
+            string targetPath)
+        {
+            var sourcePath = AssetDatabase.GetAssetPath(source);
+            var record = new PairingRecord
+            {
+                sourceMaterialGuid = AssetDatabase.AssetPathToGUID(sourcePath),
+                sourceMaterialPath = sourcePath,
+                mobileMaterialGuid = AssetDatabase.AssetPathToGUID(targetPath),
+                mobileMaterialPath = targetPath,
+                mobileShader = target.shader != null ? target.shader.name : string.Empty,
+                profile = selectedProfile.ToString(),
+                generatedUtc = DateTime.UtcNow.ToString("O")
+            };
+
+            var directory = Path.GetDirectoryName(targetPath)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(directory))
+            {
+                return;
+            }
+            var jsonPath = AssetDatabase.GenerateUniqueAssetPath(
+                directory + "/" + Path.GetFileNameWithoutExtension(targetPath) + ".apex-mobile-pairing.json"
+            );
+            File.WriteAllText(jsonPath, JsonUtility.ToJson(record, true));
+            AssetDatabase.ImportAsset(jsonPath);
+        }
+
+        private static bool IsApexPcAvatarMaterial(Material material)
+        {
+            if (material == null || material.shader == null)
+            {
+                return false;
+            }
+            return material.shader.name.StartsWith("Apex/Avatar/", StringComparison.Ordinal) ||
+                   material.shader.name.StartsWith("Apex/Toon/", StringComparison.Ordinal);
+        }
+
+        private static string SanitizeFileName(string value)
+        {
+            foreach (var character in Path.GetInvalidFileNameChars())
+            {
+                value = value.Replace(character, '_');
+            }
+            return value;
         }
 
         private static void TransferTexture(Material source, Material target, string[] sourceProperties, string[] targetProperties)

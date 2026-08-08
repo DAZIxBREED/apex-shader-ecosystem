@@ -3,11 +3,11 @@
 Importable quick-start materials.
 
 Author: **DAZIxBREED**
-Version: **0.2.0**
+Version: **0.3.0**
 Compatibility: **Depends on the visual packages installed with it**
 Pipeline: **Unity 2022.3.22f1 Built-in Render Pipeline, handwritten vertex/fragment HLSL/CG**
 
-## Implemented in 0.2.0
+## Implemented in 0.3.0
 
 - Quick-start materials for current shader families
 - Stable shader GUID references

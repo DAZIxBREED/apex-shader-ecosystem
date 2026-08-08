@@ -1,7 +1,7 @@
 {
   "name": "com.dazi.apex.toon",
   "displayName": "Apex Toon",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "unity": "2022.3",
   "description": "Banded toon shader with normal maps, AO/effect masks, shadow color, hard specular, rim, alpha clip, and SpectraOverdrive control.",
   "author": {
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.2.0",
-    "com.dazi.apex.spectraoverdrive": "0.2.0"
+    "com.dazi.apex.core": "0.3.0",
+    "com.dazi.apex.spectraoverdrive": "0.3.0"
   }
 }

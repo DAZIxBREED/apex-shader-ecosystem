@@ -1,6 +1,9 @@
 #ifndef APEX_SPECTRAOVERDRIVE_BRIDGE_INCLUDED
 #define APEX_SPECTRAOVERDRIVE_BRIDGE_INCLUDED
 
+#define APEX_SPECTRA_ABI_MAJOR 1
+#define APEX_SPECTRA_ABI_MINOR 0
+
 // Non-VRChat projects may drive the legacy/global values with Shader.SetGlobal*.
 float _ApexSpectraIntensity;
 float4 _ApexSpectraColor;
@@ -10,6 +13,8 @@ float _ApexSpectraBlackout;
 float _ApexSpectraStrobe;
 float _ApexSpectraGroupId;
 float _ApexSpectraTime;
+float _ApexSpectraSafetyActive;
+float4 _ApexSpectraSafety; // x=max intensity, y=strobe enabled, z=max strobe, w=reserved
 
 // VRChat VRCShader.SetGlobal only accepts user globals prefixed with _Udon.
 // Set _UdonApexSpectraActive to 1 while a VRChat/Udon driver owns the bridge.
@@ -22,6 +27,8 @@ float _UdonApexSpectraBlackout;
 float _UdonApexSpectraStrobe;
 float _UdonApexSpectraGroupId;
 float _UdonApexSpectraTime;
+float _UdonApexSpectraSafetyActive;
+float4 _UdonApexSpectraSafety; // x=max intensity, y=strobe enabled, z=max strobe, w=reserved
 
 struct ApexSpectraData
 {
@@ -33,6 +40,9 @@ struct ApexSpectraData
     half strobe;
     half groupId;
     half time;
+    half maxIntensity;
+    half strobeEnabled;
+    half maxStrobe;
 };
 
 inline half ApexSpectraUseUdonGlobals()
@@ -60,15 +70,22 @@ inline ApexSpectraData ApexGetSpectraData()
     half rawStrobe = lerp((half)_ApexSpectraStrobe, (half)_UdonApexSpectraStrobe, useUdon);
     half rawGroupId = lerp((half)_ApexSpectraGroupId, (half)_UdonApexSpectraGroupId, useUdon);
     half rawTime = lerp((half)_ApexSpectraTime, (half)_UdonApexSpectraTime, useUdon);
+    half rawSafetyActive = lerp((half)_ApexSpectraSafetyActive, (half)_UdonApexSpectraSafetyActive, useUdon);
+    half4 rawSafety = lerp((half4)_ApexSpectraSafety, (half4)_UdonApexSpectraSafety, useUdon);
+    half safetyEnabled = step(0.5h, rawSafetyActive);
+    half4 safety = lerp(half4(1.0h, 1.0h, 1.0h, 0.0h), saturate(rawSafety), safetyEnabled);
 
-    data.intensity = saturate(rawIntensity);
+    data.maxIntensity = safety.x;
+    data.strobeEnabled = step(0.5h, safety.y);
+    data.maxStrobe = safety.z;
+    data.intensity = min(saturate(rawIntensity), data.maxIntensity);
     half3 rawColor = max(rawColorValue.rgb, 0.0h);
     half colorMagnitude = dot(rawColor, half3(1.0h, 1.0h, 1.0h));
     data.color = lerp(half3(1.0h, 1.0h, 1.0h), rawColor, step(0.0001h, colorMagnitude));
     data.bands = saturate(rawBands);
     data.beat = saturate(rawBeat);
     data.blackout = saturate(rawBlackout);
-    data.strobe = saturate(rawStrobe);
+    data.strobe = min(saturate(rawStrobe), data.maxStrobe) * data.strobeEnabled;
     data.groupId = rawGroupId;
     data.time = rawTime;
     return data;
