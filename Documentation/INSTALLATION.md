@@ -1,18 +1,20 @@
 # Installing Apex from Git
 
-Apex is a monorepo of separate Unity packages. Pin every package to the same tag or commit.
+Apex is a monorepo of separate Unity packages. Keep every installed Apex package on the same Git ref.
 
 ## Package Manager UI
 
 Use **Window > Package Manager > + > Add package from git URL**. Install Core and SpectraOverdrive first, then the visual or tooling packages you need.
 
-Example pinned Core URL:
+Current pre-alpha Core URL:
 
 ```text
-https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#v0.3.0
+https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#main
 ```
 
-Replace the final package folder for other packages.
+Replace the final package folder for other packages. For reproducible projects, replace `main` with an exact commit SHA after you have chosen a known-good revision.
+
+> Do not pin to a `vX.Y.Z` fragment unless that Git tag actually exists in the repository.
 
 ## Project manifest example
 
@@ -21,18 +23,18 @@ Add the desired direct Git dependencies to the `dependencies` object in your Uni
 ```json
 {
   "dependencies": {
-    "com.dazi.apex.core": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#v0.3.0",
-    "com.dazi.apex.spectraoverdrive": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.spectraoverdrive#v0.3.0",
-    "com.dazi.apex.integrations": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.integrations#v0.3.0",
-    "com.dazi.apex.avatar": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.avatar#v0.3.0",
-    "com.dazi.apex.world": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.world#v0.3.0",
-    "com.dazi.apex.water": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.water#v0.3.0",
-    "com.dazi.apex.fog": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.fog#v0.3.0",
-    "com.dazi.apex.fx": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.fx#v0.3.0",
-    "com.dazi.apex.screens": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.screens#v0.3.0",
-    "com.dazi.apex.toon": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.toon#v0.3.0",
-    "com.dazi.apex.tools": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.tools#v0.3.0",
-    "com.dazi.apex.examples": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.examples#v0.3.0"
+    "com.dazi.apex.core": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#main",
+    "com.dazi.apex.spectraoverdrive": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.spectraoverdrive#main",
+    "com.dazi.apex.integrations": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.integrations#main",
+    "com.dazi.apex.avatar": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.avatar#main",
+    "com.dazi.apex.world": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.world#main",
+    "com.dazi.apex.water": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.water#main",
+    "com.dazi.apex.fog": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.fog#main",
+    "com.dazi.apex.fx": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.fx#main",
+    "com.dazi.apex.screens": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.screens#main",
+    "com.dazi.apex.toon": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.toon#main",
+    "com.dazi.apex.tools": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.tools#main",
+    "com.dazi.apex.examples": "https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.examples#main"
   }
 }
 ```
@@ -45,7 +47,7 @@ Open `ValidationProject/` in Unity 2022.3.22f1 to import every package through l
 
 ## Local development
 
-For a cloned repository, add packages from disk using each package's `package.json`, or use `file:` entries in the project manifest. Local packages are useful while editing HLSL because changes appear without publishing a new tag.
+For a cloned repository, add packages from disk using each package's `package.json`, or use `file:` entries in the project manifest. Local packages are useful while editing HLSL because changes appear without publishing a new Git ref.
 
 ## Samples
 
