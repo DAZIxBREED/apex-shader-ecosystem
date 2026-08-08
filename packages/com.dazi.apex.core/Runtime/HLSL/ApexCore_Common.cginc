@@ -7,7 +7,7 @@
 
 #define APEX_VERSION_MAJOR 0
 #define APEX_VERSION_MINOR 3
-#define APEX_VERSION_PATCH 0
+#define APEX_VERSION_PATCH 2
 
 #define APEX_PI 3.14159265h
 #define APEX_INV_PI 0.318309886h
@@ -36,7 +36,6 @@ struct ApexVaryings
     LIGHTING_COORDS(6, 7)
     UNITY_VERTEX_OUTPUT_STEREO
 };
-
 
 struct ApexUnlitVaryings
 {
