@@ -2,22 +2,22 @@
 
 A clean-room, modular, handwritten HLSL/CG shader ecosystem by **DAZIxBREED** for Unity **2022.3.22f1**, the Built-in Render Pipeline, and VRChat-oriented content.
 
-**Current development version:** `0.3.0` pre-alpha
+**Current development version:** `0.3.1` pre-alpha
 **World design targets:** Windows PCVR/Desktop, Android/Quest, and iOS
 **Avatar design targets:** Apex custom shaders on PC; SDK-provided `VRChat/Mobile` fallback materials on Android, Quest, and iOS
 
-## What changed in 0.3.0
+## What changed in 0.3.1
 
-Apex 0.3.0 turns the first visual baselines into a quality-managed and validation-oriented ecosystem:
+Apex 0.3.1 is a hardening patch over 0.3.0:
 
-- Core now has Standard, Mobile, and High local quality tiers plus reflection-probe environment specular for supported tiers.
-- World gains `Apex/World/VertexBlendLite`, a two-layer vertex-red blend shader with independent base, normal, and packed-mask inputs.
-- Water gains `Apex/Water/OpaqueMobile`, a three-sampler opaque alternative for severe transparency/fill-rate budgets.
-- FX gains `Apex/FX/DissolveCutout`, including lit dissolve edges, shadow casting, baked Meta output, and SpectraOverdrive response.
-- Screens gains `Apex/Screens/LEDPanelLite`, a one-sampler procedural LED/pixel-grid video panel with RGB subpixel simulation.
-- SpectraOverdrive now exposes a frozen ABI 1.0 and safety policy globals that can cap intensity and strobe response without breaking 0.2 drivers.
-- Apex Tools now includes material quality profiles, avatar skin/cloth/hair/hard-surface presets, deterministic mobile-fallback pairing records, batch fallback generation, shader variant stripping, variant usage reports, a global bridge monitor, and an automated validation-scene builder.
-- `ValidationProject/` is a dedicated Unity 2022.3.22f1 project that references all twelve local packages and exposes a batch validation entry point.
+- Fixed the sample-material whitespace defect that caused the 0.3.0 GitHub validation workflow to fail before package validation could run.
+- Moved GitHub validation and packaging workflows to Node-24-compatible `actions/checkout@v6` and `actions/setup-python@v6`.
+- Hardened the Mobile Avatar Fallback Builder so output folders are created through Unity's `AssetDatabase` before material/pairing assets are written.
+- Hardened shader-variant report output so generated report folders are also AssetDatabase-aware.
+- Bumped all twelve UPM package manifests and internal Apex dependency pins together to `0.3.1`.
+- Re-ran the full static validation chain successfully, including deterministic metadata and two identical UPM archive builds.
+
+0.3.1 retains the 0.3.0 shader/runtime feature set: quality tiers, reflection-probe lighting, World vertex blending, opaque mobile water, lit dissolve, LED panels, SpectraOverdrive ABI 1.0, authoring profiles, variant tooling, and the Unity validation project.
 
 ## Compatibility truth
 
@@ -44,13 +44,13 @@ The PC Avatar and Toon shaders use Standard-compatible property names and the ex
 
 ## Install from Git
 
-Unity Package Manager supports a monorepo subfolder URL. Example for Core:
+Unity Package Manager supports a monorepo subfolder URL. For the current pre-alpha development line, Core can be installed from `main`:
 
 ```text
-https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#agent/advance-0.3.0
+https://github.com/DAZIxBREED/apex-shader-ecosystem.git?path=/packages/com.dazi.apex.core#main
 ```
 
-Pin all installed Apex packages to the same branch, commit, or release tag.
+Pin all installed Apex packages to the same branch or, preferably, the same exact commit for reproducible projects. Do not use a version tag unless that tag actually exists in the repository.
 
 ## Validation project
 
