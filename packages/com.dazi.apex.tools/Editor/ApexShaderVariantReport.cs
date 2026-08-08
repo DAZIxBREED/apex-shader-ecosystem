@@ -33,7 +33,7 @@ namespace DAZI.Apex.Tools
         {
             const string outputFolder = "Assets/ApexValidation/Generated";
             const string outputPath = outputFolder + "/ApexShaderVariantReport.json";
-            Directory.CreateDirectory(outputFolder);
+            EnsureAssetFolder(outputFolder);
 
             var materials = AssetDatabase.FindAssets("t:Material")
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -52,7 +52,7 @@ namespace DAZI.Apex.Tools
                         .Distinct(StringComparer.Ordinal)
                         .OrderBy(keyword => keyword, StringComparer.Ordinal)
                         .ToArray(),
-                    materials = group.Select(AssetDatabase.GetAssetPath)
+                    materials = group.Select(material => AssetDatabase.GetAssetPath(material))
                         .OrderBy(path => path, StringComparer.Ordinal)
                         .ToArray()
                 })
@@ -78,6 +78,25 @@ namespace DAZI.Apex.Tools
         {
             return material != null && material.shader != null &&
                    material.shader.name.StartsWith("Apex/", StringComparison.Ordinal);
+        }
+
+        private static void EnsureAssetFolder(string path)
+        {
+            var normalized = path.Replace('\\', '/');
+            if (AssetDatabase.IsValidFolder(normalized))
+            {
+                return;
+            }
+
+            var parent = Path.GetDirectoryName(normalized)?.Replace('\\', '/');
+            var name = Path.GetFileName(normalized);
+            if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(name))
+            {
+                throw new InvalidOperationException("Apex could not resolve asset folder: " + normalized);
+            }
+
+            EnsureAssetFolder(parent);
+            AssetDatabase.CreateFolder(parent, name);
         }
     }
 }
