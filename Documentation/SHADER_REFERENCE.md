@@ -1,4 +1,4 @@
-# Apex 0.3.0 Shader Reference
+# Apex 0.3.1 Shader Reference
 
 Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is now separately versioned and frozen at 1.0.
 

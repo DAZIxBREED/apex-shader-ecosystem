@@ -1,4 +1,4 @@
-# Apex 0.3.0 Validation Matrix
+# Apex 0.3.1 Validation Matrix
 
 ## Repository/static checks
 
@@ -8,6 +8,7 @@
 - SpectraOverdrive ABI 1.0 and `_Udon` safety globals are checked.
 - The dedicated validation project must reference all twelve local packages and Unity 2022.3.22f1.
 - Python/shell tooling parses and UPM archives are reproducible.
+- GitHub validation is green for 0.3.1 after the sample whitespace and editor output-folder fixes.
 
 ## Runtime matrix
 

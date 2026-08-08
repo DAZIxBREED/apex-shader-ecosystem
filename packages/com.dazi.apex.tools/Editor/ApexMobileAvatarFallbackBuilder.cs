@@ -51,7 +51,7 @@ namespace DAZI.Apex.Tools
             }
 
             const string outputFolder = "Assets/ApexMobileFallbacks";
-            Directory.CreateDirectory(outputFolder);
+            EnsureAssetFolder(outputFolder);
             var created = 0;
             foreach (var source in materials)
             {
@@ -140,6 +140,14 @@ namespace DAZI.Apex.Tools
                 return null;
             }
 
+            var directory = Path.GetDirectoryName(outputPath)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(directory))
+            {
+                Debug.LogError("Apex: mobile fallback output path has no valid asset folder: " + outputPath);
+                return null;
+            }
+            EnsureAssetFolder(directory);
+
             var shader = FindMobileShader(selectedProfile);
             if (shader == null)
             {
@@ -225,6 +233,7 @@ namespace DAZI.Apex.Tools
             {
                 return;
             }
+            EnsureAssetFolder(directory);
             var jsonPath = AssetDatabase.GenerateUniqueAssetPath(
                 directory + "/" + Path.GetFileNameWithoutExtension(targetPath) + ".apex-mobile-pairing.json"
             );
@@ -249,6 +258,25 @@ namespace DAZI.Apex.Tools
                 value = value.Replace(character, '_');
             }
             return value;
+        }
+
+        private static void EnsureAssetFolder(string path)
+        {
+            var normalized = path.Replace('\\', '/');
+            if (AssetDatabase.IsValidFolder(normalized))
+            {
+                return;
+            }
+
+            var parent = Path.GetDirectoryName(normalized)?.Replace('\\', '/');
+            var name = Path.GetFileName(normalized);
+            if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(name))
+            {
+                throw new InvalidOperationException("Apex could not resolve asset folder: " + normalized);
+            }
+
+            EnsureAssetFolder(parent);
+            AssetDatabase.CreateFolder(parent, name);
         }
 
         private static void TransferTexture(Material source, Material target, string[] sourceProperties, string[] targetProperties)

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.1 — CI and editor-tool hardening
+
+### Fixed
+
+- Removed trailing whitespace from the Dissolve Cutout and Vertex Blend sample materials, allowing the repository whitespace gate to complete instead of failing before package validation.
+- Corrected Git installation documentation that referenced a nonexistent `v0.3.0` tag.
+- Mobile Avatar Fallback Builder now ensures destination folders exist in Unity's AssetDatabase before creating materials and pairing records.
+- Shader Variant Usage Report now creates its generated output folder through the AssetDatabase instead of relying on a raw filesystem directory.
+
+### Changed
+
+- Updated GitHub validation and packaging workflows to `actions/checkout@v6` and `actions/setup-python@v6` for Node 24 compatibility.
+- Bumped all twelve UPM packages and all direct Apex dependency pins to `0.3.1`.
+- Current pre-alpha Git installation examples use `main`; exact commit pinning is recommended for reproducible projects until version tags are published.
+
+### Validation
+
+- GitHub static validation passes on the 0.3.1 branch.
+- Unity metadata regeneration is reproducible with no repository diff.
+- All twelve UPM archives build twice with identical SHA-256 output.
+- Unity 2022.3.22f1 shader/C# compilation and device validation remain required.
+
 ## 0.3.0 — Quality tiers, validation project, and second shader families
 
 ### Added
@@ -25,7 +47,6 @@
 - Clean Unity import and shader compilation on Direct3D 11, Vulkan/GLES3, and Metal.
 - VRChat SDK world and avatar build tests.
 - Single-pass stereo, device profiling, and visual comparison captures.
-
 
 ## 0.2.0 — Foundation hardening and first distinct shader families
 
