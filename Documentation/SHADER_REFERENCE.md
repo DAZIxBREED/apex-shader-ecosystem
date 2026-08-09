@@ -1,4 +1,4 @@
-# Apex 0.3.1 Shader Reference
+# Apex 0.3.2 Shader Reference
 
 Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is now separately versioned and frozen at 1.0.
 
@@ -26,6 +26,8 @@ World, Avatar, Toon, Vertex Blend, and Dissolve materials use mutually exclusive
 - `_APEX_QUALITY_HIGH`: enables the high specular-energy path
 
 Use **Apex > Materials > Quality** rather than changing keywords by hand. Mobile builds strip High variants automatically.
+
+Apex 0.3.2's compiler audit explicitly compiles the Standard, Mobile, and High profiles for quality-managed shaders, plus Standard+Detail when `_APEX_DETAIL` exists.
 
 ## Shared packed mask
 
