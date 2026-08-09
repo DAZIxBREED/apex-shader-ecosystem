@@ -1,7 +1,7 @@
 {
   "name": "com.dazi.apex.screens",
   "displayName": "Apex Screens",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "unity": "2022.3",
   "description": "Video and procedural LED screen shaders using _MainTex compatibility, grading, scanlines, vignette, configurable pixel apertures, emission, and SpectraOverdrive control.",
   "author": {
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.3.1",
-    "com.dazi.apex.spectraoverdrive": "0.3.1"
+    "com.dazi.apex.core": "0.3.2",
+    "com.dazi.apex.spectraoverdrive": "0.3.2"
   }
 }

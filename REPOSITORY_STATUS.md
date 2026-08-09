@@ -1,6 +1,6 @@
 # Repository Status
 
-**Version:** 0.3.1
+**Version:** 0.3.2
 **Maturity:** Pre-alpha implementation
 **Unity baseline:** 2022.3.22f1, Built-in Render Pipeline
 
@@ -12,17 +12,17 @@
 - SpectraOverdrive ABI 1.0 with Unity and `_Udon` globals, routing, four bands, blackout, and optional intensity/strobe safety limits.
 - Dependency-free optional integration globals plus an editor monitor for live Unity/Udon values.
 - PC character fallback metadata, batch SDK mobile-material generation, and machine-readable source/fallback pairing records.
-- Material quality profiles, Avatar look presets, packed-mask authoring, project/material validation, variant stripping, and variant usage reports.
+- Material quality profiles, Avatar look presets, packed-mask authoring, project/material validation, variant stripping, variant usage reports, and synchronous shader compiler auditing.
 - Dedicated local-package Unity validation project and automated scene builder.
-- Green GitHub static validation on the 0.3.1 branch, including metadata reproducibility and two identical UPM archive builds.
+- Machine-readable compiler report output under `Assets/ApexValidation/Generated/` when validation runs in Unity.
 
-## 0.3.1 hardening
+## 0.3.2 hardening
 
-- Corrected sample-material trailing whitespace that blocked the 0.3.0 validation workflow.
-- Updated GitHub validation/package actions to Node-24-compatible major versions.
-- Made generated validation reports and mobile fallback output folders AssetDatabase-aware.
-- Aligned every package and direct internal dependency pin to 0.3.1.
-- Corrected Git install documentation so it no longer points to nonexistent version tags.
+- Added a shared required-shader catalog used by compiler validation and Package Doctor.
+- Added synchronous per-pass shader compilation for Standard, Mobile, High, and detail-enabled profiles where applicable.
+- Package Doctor now includes compiler messages in full/batch validation and fails batch validation on shader compiler errors.
+- Centralized Unity AssetDatabase folder creation for generated reports and mobile fallback output.
+- Corrected Core HLSL version constants and aligned every package/direct internal dependency pin to 0.3.2.
 
 ## Platform contract
 
@@ -32,9 +32,13 @@
 | Apex custom avatar shaders | Designed | Not permitted by VRChat | Not permitted by VRChat |
 | Generated SDK mobile avatar fallback | Optional | Required | Required |
 
+## Validation boundary
+
+Repository CI verifies static source/package contracts, metadata reproducibility, and deterministic package archives. The 0.3.2 compiler audit requires Unity 2022.3.22f1; it is now wired into the Validation Project but has not yet been executed on every target graphics API in this repository workflow.
+
 ## Not yet proven
 
-- Unity batch compilation of every pass and variant on each target graphics API.
+- Unity batch compilation on Direct3D 11, Vulkan/GLES3, and Metal using the new compiler audit.
 - VRChat SDK build/upload validation.
 - Correct single-pass stereo on device.
 - On-device performance and visual parity measurements.

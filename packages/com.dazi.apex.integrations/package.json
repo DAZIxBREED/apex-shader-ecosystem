@@ -1,7 +1,7 @@
 {
   "name": "com.dazi.apex.integrations",
   "displayName": "Apex Integrations",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "unity": "2022.3",
   "description": "Dependency-free global-uniform interoperability for audio bands, light volumes, LTCGI-style emission, VRSL-style emission, and the SpectraOverdrive bridge.",
   "author": {
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.3.1",
-    "com.dazi.apex.spectraoverdrive": "0.3.1"
+    "com.dazi.apex.core": "0.3.2",
+    "com.dazi.apex.spectraoverdrive": "0.3.2"
   }
 }

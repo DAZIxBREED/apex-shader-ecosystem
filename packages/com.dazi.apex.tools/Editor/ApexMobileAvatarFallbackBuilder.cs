@@ -51,7 +51,7 @@ namespace DAZI.Apex.Tools
             }
 
             const string outputFolder = "Assets/ApexMobileFallbacks";
-            EnsureAssetFolder(outputFolder);
+            ApexEditorAssetFolders.Ensure(outputFolder);
             var created = 0;
             foreach (var source in materials)
             {
@@ -146,7 +146,7 @@ namespace DAZI.Apex.Tools
                 Debug.LogError("Apex: mobile fallback output path has no valid asset folder: " + outputPath);
                 return null;
             }
-            EnsureAssetFolder(directory);
+            ApexEditorAssetFolders.Ensure(directory);
 
             var shader = FindMobileShader(selectedProfile);
             if (shader == null)
@@ -177,7 +177,7 @@ namespace DAZI.Apex.Tools
 
             AssetDatabase.CreateAsset(target, outputPath);
             AssetDatabase.SaveAssets();
-            AssetDatabase.ImportAsset(outputPath);
+            AssetDatabase.ImportAsset(outputPath, ImportAssetOptions.ForceUpdate);
             WritePairingRecord(source, target, selectedProfile, outputPath);
             Debug.Log($"Apex created mobile avatar fallback: {outputPath} using {shader.name}", target);
             return target;
@@ -233,12 +233,12 @@ namespace DAZI.Apex.Tools
             {
                 return;
             }
-            EnsureAssetFolder(directory);
+            ApexEditorAssetFolders.Ensure(directory);
             var jsonPath = AssetDatabase.GenerateUniqueAssetPath(
                 directory + "/" + Path.GetFileNameWithoutExtension(targetPath) + ".apex-mobile-pairing.json"
             );
             File.WriteAllText(jsonPath, JsonUtility.ToJson(record, true));
-            AssetDatabase.ImportAsset(jsonPath);
+            AssetDatabase.ImportAsset(jsonPath, ImportAssetOptions.ForceUpdate);
         }
 
         private static bool IsApexPcAvatarMaterial(Material material)
@@ -258,25 +258,6 @@ namespace DAZI.Apex.Tools
                 value = value.Replace(character, '_');
             }
             return value;
-        }
-
-        private static void EnsureAssetFolder(string path)
-        {
-            var normalized = path.Replace('\\', '/');
-            if (AssetDatabase.IsValidFolder(normalized))
-            {
-                return;
-            }
-
-            var parent = Path.GetDirectoryName(normalized)?.Replace('\\', '/');
-            var name = Path.GetFileName(normalized);
-            if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(name))
-            {
-                throw new InvalidOperationException("Apex could not resolve asset folder: " + normalized);
-            }
-
-            EnsureAssetFolder(parent);
-            AssetDatabase.CreateFolder(parent, name);
         }
 
         private static void TransferTexture(Material source, Material target, string[] sourceProperties, string[] targetProperties)

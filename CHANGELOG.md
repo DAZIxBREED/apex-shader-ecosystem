@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.3.2 — Shader compiler audit and validation hardening
+
+### Added
+
+- Shared required-shader catalog for editor validation.
+- Synchronous Unity shader compiler audit using `ShaderUtil.CompilePass` and `ShaderUtil.GetShaderMessages`.
+- Standard, Mobile, High, and Standard+Detail audit profiles where those local shader keywords exist.
+- Machine-readable `ApexShaderCompilerReport.json` output with Unity version, build target, graphics API, compiler platform, source file/line, severity, profile, and pass counts.
+- Shared AssetDatabase-safe generated-folder utility for Apex editor tooling.
+
+### Changed
+
+- Package Doctor full/batch validation now incorporates compiler-audit errors and warnings.
+- Mobile Avatar Fallback Builder and Shader Variant Usage Report now share the same generated asset-folder implementation.
+- Core HLSL version constants now report `0.3.2` instead of remaining at the old 0.3.0 patch value.
+- All twelve UPM packages and direct Apex dependency pins are aligned to `0.3.2`.
+
+### Validation boundary
+
+- Hosted repository CI validates source structure, package/dependency consistency, deterministic Unity metadata, and reproducible UPM archives.
+- The new compiler audit requires Unity 2022.3.22f1 and runs through the Validation Project; hosted CI still does not contain a licensed Unity editor.
+- Direct3D 11, Vulkan/GLES3, Metal, VRChat SDK builds, stereo/device rendering, and profiling remain runtime validation work.
+
 ## 0.3.1 — CI and editor-tool hardening
 
 ### Fixed

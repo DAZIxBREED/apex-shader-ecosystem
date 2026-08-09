@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -33,7 +32,7 @@ namespace DAZI.Apex.Tools
         {
             const string outputFolder = "Assets/ApexValidation/Generated";
             const string outputPath = outputFolder + "/ApexShaderVariantReport.json";
-            EnsureAssetFolder(outputFolder);
+            ApexEditorAssetFolders.Ensure(outputFolder);
 
             var materials = AssetDatabase.FindAssets("t:Material")
                 .Select(AssetDatabase.GUIDToAssetPath)
@@ -67,7 +66,7 @@ namespace DAZI.Apex.Tools
             };
 
             File.WriteAllText(outputPath, JsonUtility.ToJson(report, true));
-            AssetDatabase.ImportAsset(outputPath);
+            AssetDatabase.ImportAsset(outputPath, ImportAssetOptions.ForceUpdate);
             var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(outputPath);
             Selection.activeObject = asset;
             EditorGUIUtility.PingObject(asset);
@@ -78,25 +77,6 @@ namespace DAZI.Apex.Tools
         {
             return material != null && material.shader != null &&
                    material.shader.name.StartsWith("Apex/", StringComparison.Ordinal);
-        }
-
-        private static void EnsureAssetFolder(string path)
-        {
-            var normalized = path.Replace('\\', '/');
-            if (AssetDatabase.IsValidFolder(normalized))
-            {
-                return;
-            }
-
-            var parent = Path.GetDirectoryName(normalized)?.Replace('\\', '/');
-            var name = Path.GetFileName(normalized);
-            if (string.IsNullOrEmpty(parent) || string.IsNullOrEmpty(name))
-            {
-                throw new InvalidOperationException("Apex could not resolve asset folder: " + normalized);
-            }
-
-            EnsureAssetFolder(parent);
-            AssetDatabase.CreateFolder(parent, name);
         }
     }
 }

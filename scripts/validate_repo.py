@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ROOT / "packages"
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+VERSION_PARTS = VERSION.split(".")
 REQUIRED = (
     "package.json",
     "README.md",
@@ -78,6 +79,10 @@ def require_text(path: Path, needles: tuple[str, ...]) -> None:
         if needle not in text:
             fail(f"{path.relative_to(ROOT)} missing required contract: {needle}")
 
+
+if len(VERSION_PARTS) != 3 or not all(part.isdigit() for part in VERSION_PARTS):
+    fail(f"VERSION must be numeric semantic version MAJOR.MINOR.PATCH, found {VERSION!r}")
+    VERSION_PARTS = ["0", "0", "0"]
 
 try:
     repository = json.loads((ROOT / "repository.json").read_text(encoding="utf-8"))
@@ -183,7 +188,11 @@ require_text(
 )
 require_text(
     PACKAGES / "com.dazi.apex.core/Runtime/HLSL/ApexCore_Common.cginc",
-    ("#define APEX_VERSION_MAJOR 0", "#define APEX_VERSION_MINOR 3", "#define APEX_VERSION_PATCH 0"),
+    (
+        f"#define APEX_VERSION_MAJOR {VERSION_PARTS[0]}",
+        f"#define APEX_VERSION_MINOR {VERSION_PARTS[1]}",
+        f"#define APEX_VERSION_PATCH {VERSION_PARTS[2]}",
+    ),
 )
 for filename, direct_includes in {
     "ApexCore_Surface.cginc": ("ApexCore_Common.cginc", "ApexCore_Packing.cginc"),
@@ -204,6 +213,19 @@ for relative in (
 ):
     path = PACKAGES / relative
     require_text(path, ('"VRCFallback"="toonstandard"', "_MainTex", "_Color", "_BumpMap", "_BumpScale"))
+
+require_text(
+    PACKAGES / "com.dazi.apex.tools/Editor/ApexShaderCompilerAudit.cs",
+    (
+        "ShaderUtil.CompilePass", "ShaderUtil.GetShaderMessages",
+        "ShaderCompilerMessageSeverity.Error", "ApexShaderCompilerReport.json",
+        "_APEX_QUALITY_MOBILE", "_APEX_QUALITY_HIGH", "_APEX_DETAIL",
+    ),
+)
+require_text(
+    PACKAGES / "com.dazi.apex.tools/Editor/ApexPackageDoctor.cs",
+    ("ApexShaderCatalog.RequiredShaderNames", "ApexShaderCompilerAudit.AppendCompilerDiagnostics"),
+)
 
 if sorted(manifests) != sorted(repository.get("packages", [])):
     fail("repository.json package list does not match package directories")
