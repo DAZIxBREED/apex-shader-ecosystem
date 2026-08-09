@@ -1,9 +1,9 @@
 {
   "name": "com.dazi.apex.tools",
   "displayName": "Apex Tools",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "unity": "2022.3",
-  "description": "Editor quality profiles, shader variant stripping/reporting, validation-scene generation, bridge diagnostics, avatar presets, VRChat mobile fallback pairing, Package Doctor, and packed-mask authoring.",
+  "description": "Editor quality profiles, synchronous shader compiler auditing, shader variant stripping/reporting, validation-scene generation, bridge diagnostics, avatar presets, VRChat mobile fallback pairing, Package Doctor, and packed-mask authoring.",
   "author": {
     "name": "DAZIxBREED"
   },
@@ -20,6 +20,6 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.3.1"
+    "com.dazi.apex.core": "0.3.2"
   }
 }
