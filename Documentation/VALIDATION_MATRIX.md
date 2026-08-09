@@ -1,4 +1,4 @@
-# Apex 0.3.1 Validation Matrix
+# Apex 0.3.2 Validation Matrix
 
 ## Repository/static checks
 
@@ -8,14 +8,25 @@
 - SpectraOverdrive ABI 1.0 and `_Udon` safety globals are checked.
 - The dedicated validation project must reference all twelve local packages and Unity 2022.3.22f1.
 - Python/shell tooling parses and UPM archives are reproducible.
-- GitHub validation is green for 0.3.1 after the sample whitespace and editor output-folder fixes.
+
+## Unity compiler audit
+
+`ApexShaderCompilerAudit` runs inside Unity and synchronously requests compilation of every pass for each required Apex shader. Quality-managed shaders are compiled in Standard, Mobile, and High profiles; `_APEX_DETAIL` shaders also receive a Standard+Detail profile.
+
+The audit writes:
+
+```text
+Assets/ApexValidation/Generated/ApexShaderCompilerReport.json
+```
+
+Each compiler message records severity, compiler platform, source file, source line, message/details, shader/profile context, Unity version, active build target, and graphics API. Package Doctor full/batch validation includes these messages and batch validation fails when the audit reports compiler errors.
 
 ## Runtime matrix
 
 | Test | Windows PCVR/Desktop | Android/Quest | iOS |
 |---|---:|---:|---:|
 | Unity 2022.3.22f1 clean import | Pending | Pending | Pending |
-| All shader/pass variant compilation | Pending | Pending | Pending |
+| 0.3.2 synchronous shader compiler audit | Pending | Pending | Pending |
 | Generated validation scene render | Pending | Pending | Pending |
 | Single-pass stereo | Pending | Pending | Pending |
 | GPU instancing | Pending | Pending | Pending |
@@ -37,9 +48,11 @@ Unity -batchmode -quit \
   -logFile ./ValidationProject/apex-validation.log
 ```
 
+`RunBatch` builds the validation scene, runs Package Doctor, and therefore executes the 0.3.2 compiler audit before returning success.
+
 ## Acceptance criteria for 0.4
 
-- The full clean-import matrix is executed and logs are retained.
+- The full clean-import/compiler-audit matrix is executed and logs/reports are retained.
 - No shader compiler errors or pink validation fixtures.
 - Correct stereo, light, shadow, lightmap, and reflection-probe behavior.
 - Mobile profiles show no High-quality variants in build logs.
