@@ -224,7 +224,9 @@ Shader "Apex/World/VertexBlendLite"
             #include "UnityMetaPass.cginc"
 
             sampler2D _LayerABase; float4 _LayerABase_ST;
+            sampler2D _LayerAMask; float4 _LayerAMask_ST;
             sampler2D _LayerBBase; float4 _LayerBBase_ST;
+            sampler2D _LayerBMask; float4 _LayerBMask_ST;
             half4 _LayerAColor;
             half4 _LayerBColor;
             half _BlendBias;
@@ -245,7 +247,9 @@ Shader "Apex/World/VertexBlendLite"
                 float4 pos : SV_POSITION;
                 float2 uvA : TEXCOORD0;
                 float2 uvB : TEXCOORD1;
-                half blend : TEXCOORD2;
+                float2 maskUvA : TEXCOORD2;
+                float2 maskUvB : TEXCOORD3;
+                half blend : TEXCOORD4;
             };
 
             MetaVaryings vertMeta(MetaAttributes v)
@@ -254,6 +258,8 @@ Shader "Apex/World/VertexBlendLite"
                 o.pos = UnityMetaVertexPosition(v.vertex, v.uv1, v.uv2, unity_LightmapST, unity_DynamicLightmapST);
                 o.uvA = v.uv0 * _LayerABase_ST.xy + _LayerABase_ST.zw;
                 o.uvB = v.uv0 * _LayerBBase_ST.xy + _LayerBBase_ST.zw;
+                o.maskUvA = v.uv0 * _LayerAMask_ST.xy + _LayerAMask_ST.zw;
+                o.maskUvB = v.uv0 * _LayerBMask_ST.xy + _LayerBMask_ST.zw;
                 o.blend = saturate((saturate(v.color.r + _BlendBias) - 0.5h) * max(_BlendContrast, 0.01h) + 0.5h);
                 return o;
             }
@@ -262,10 +268,14 @@ Shader "Apex/World/VertexBlendLite"
             {
                 half3 albedoA = tex2D(_LayerABase, i.uvA).rgb * _LayerAColor.rgb;
                 half3 albedoB = tex2D(_LayerBBase, i.uvB).rgb * _LayerBColor.rgb;
+                half effectMaskA = tex2D(_LayerAMask, i.maskUvA).b;
+                half effectMaskB = tex2D(_LayerBMask, i.maskUvB).b;
+                half effectMask = lerp(effectMaskA, effectMaskB, i.blend);
+
                 UnityMetaInput meta;
                 UNITY_INITIALIZE_OUTPUT(UnityMetaInput, meta);
                 meta.Albedo = lerp(albedoA, albedoB, i.blend);
-                meta.Emission = _EmissionColor.rgb * _EmissionColor.a;
+                meta.Emission = _EmissionColor.rgb * _EmissionColor.a * effectMask;
                 return UnityMetaFragment(meta);
             }
             ENDCG
