@@ -1,4 +1,4 @@
-# Apex 0.3.2 Shader Reference
+# Apex 0.3.3 Shader Reference
 
 Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is now separately versioned and frozen at 1.0.
 
@@ -27,7 +27,9 @@ World, Avatar, Toon, Vertex Blend, and Dissolve materials use mutually exclusive
 
 Use **Apex > Materials > Quality** rather than changing keywords by hand. Mobile builds strip High variants automatically.
 
-Apex 0.3.2's compiler audit explicitly compiles the Standard, Mobile, and High profiles for quality-managed shaders, plus Standard+Detail when `_APEX_DETAIL` exists.
+Apex 0.3.3's compiler audit explicitly requests Standard, Mobile, and High profiles for quality-managed shaders and adds detail/alpha-cutout stress profiles where supported. The generated validation scene mirrors those profile labels and records active pass names in `ApexValidationSceneManifest.json`.
+
+`Apex/World/Standard` also keeps its Meta pass in parity with the forward material for detail albedo and alpha cutout, so baked coverage does not silently diverge from the visible surface.
 
 ## Shared packed mask
 
