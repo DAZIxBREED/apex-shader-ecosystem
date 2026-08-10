@@ -71,6 +71,11 @@ namespace DAZI.Apex.Tools
 
         private static void ValidateShaders(List<string> errors, List<string> warnings)
         {
+            if (ApexShaderCatalog.RequiredShaderNames.Length != ApexShaderCatalog.RequiredShaders.Length)
+            {
+                errors.Add("Apex shader catalog name and pass-contract counts do not match.");
+            }
+
             foreach (var contract in ApexShaderCatalog.RequiredShaders)
             {
                 var shader = Shader.Find(contract.ShaderName);
