@@ -212,13 +212,20 @@ Shader "Apex/World/Standard"
             CGPROGRAM
             #pragma vertex vertMeta
             #pragma fragment fragMeta
+            #pragma shader_feature_local _APEX_DETAIL
             #include "UnityCG.cginc"
             #include "UnityMetaPass.cginc"
 
             sampler2D _BaseMap;
             float4 _BaseMap_ST;
+            sampler2D _DetailMap;
+            float4 _DetailMap_ST;
             half4 _BaseColor;
             half4 _EmissionColor;
+            half4 _DetailColor;
+            half _DetailStrength;
+            half _AlphaClip;
+            half _Cutoff;
 
             struct ApexMetaAttributes
             {
@@ -232,6 +239,7 @@ Shader "Apex/World/Standard"
             {
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float2 detailUV : TEXCOORD1;
             };
 
             ApexMetaVaryings vertMeta(ApexMetaAttributes v)
@@ -239,12 +247,22 @@ Shader "Apex/World/Standard"
                 ApexMetaVaryings o;
                 o.pos = UnityMetaVertexPosition(v.vertex, v.uv1, v.uv2, unity_LightmapST, unity_DynamicLightmapST);
                 o.uv = TRANSFORM_TEX(v.uv0, _BaseMap);
+                o.detailUV = v.uv0 * _DetailMap_ST.xy + _DetailMap_ST.zw;
                 return o;
             }
 
             half4 fragMeta(ApexMetaVaryings i) : SV_Target
             {
                 half4 baseSample = tex2D(_BaseMap, i.uv) * _BaseColor;
+                half clipValue = lerp(1.0h, baseSample.a - _Cutoff, step(0.5h, _AlphaClip));
+                clip(clipValue);
+
+#if defined(_APEX_DETAIL)
+                half3 detail = tex2D(_DetailMap, i.detailUV).rgb * _DetailColor.rgb;
+                half3 doubledDetail = detail * 2.0h;
+                baseSample.rgb *= lerp(half3(1.0h, 1.0h, 1.0h), doubledDetail, saturate(_DetailStrength));
+#endif
+
                 UnityMetaInput meta;
                 UNITY_INITIALIZE_OUTPUT(UnityMetaInput, meta);
                 meta.Albedo = baseSample.rgb;
