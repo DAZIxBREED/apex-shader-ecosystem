@@ -195,7 +195,7 @@ Shader "Apex/World/Standard"
 
             float4 fragShadow(ApexShadowVaryings i) : SV_Target
             {
-                half alpha = tex2D(_BaseMap, i.uv0).a * _BaseColor.a;
+                half alpha = tex2D(_BaseMap, i.uv0).a * _BaseColor.a * i.vertexAlpha;
                 half clipValue = lerp(1.0h, alpha - _Cutoff, step(0.5h, _AlphaClip));
                 clip(clipValue);
                 SHADOW_CASTER_FRAGMENT(i)
@@ -233,6 +233,7 @@ Shader "Apex/World/Standard"
                 float2 uv0 : TEXCOORD0;
                 float2 uv1 : TEXCOORD1;
                 float2 uv2 : TEXCOORD2;
+                fixed4 color : COLOR;
             };
 
             struct ApexMetaVaryings
@@ -240,6 +241,7 @@ Shader "Apex/World/Standard"
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float2 detailUV : TEXCOORD1;
+                fixed4 vertexColor : COLOR;
             };
 
             ApexMetaVaryings vertMeta(ApexMetaAttributes v)
@@ -248,12 +250,13 @@ Shader "Apex/World/Standard"
                 o.pos = UnityMetaVertexPosition(v.vertex, v.uv1, v.uv2, unity_LightmapST, unity_DynamicLightmapST);
                 o.uv = TRANSFORM_TEX(v.uv0, _BaseMap);
                 o.detailUV = v.uv0 * _DetailMap_ST.xy + _DetailMap_ST.zw;
+                o.vertexColor = v.color;
                 return o;
             }
 
             half4 fragMeta(ApexMetaVaryings i) : SV_Target
             {
-                half4 baseSample = tex2D(_BaseMap, i.uv) * _BaseColor;
+                half4 baseSample = tex2D(_BaseMap, i.uv) * _BaseColor * i.vertexColor;
                 half clipValue = lerp(1.0h, baseSample.a - _Cutoff, step(0.5h, _AlphaClip));
                 clip(clipValue);
 

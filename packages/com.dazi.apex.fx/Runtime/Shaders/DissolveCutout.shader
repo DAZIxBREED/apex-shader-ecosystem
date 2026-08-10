@@ -206,6 +206,7 @@ Shader "Apex/FX/DissolveCutout"
             #pragma fragment fragMeta
             #include "UnityCG.cginc"
             #include "UnityMetaPass.cginc"
+            #include "Packages/com.dazi.apex.fx/Runtime/HLSL/ApexFX_Dissolve.cginc"
 
             sampler2D _BaseMap; float4 _BaseMap_ST;
             sampler2D _DissolveMap; float4 _DissolveMap_ST;
@@ -221,6 +222,7 @@ Shader "Apex/FX/DissolveCutout"
                 float2 uv0 : TEXCOORD0;
                 float2 uv1 : TEXCOORD1;
                 float2 uv2 : TEXCOORD2;
+                fixed4 color : COLOR;
             };
 
             struct MetaVaryings
@@ -228,6 +230,7 @@ Shader "Apex/FX/DissolveCutout"
                 float4 pos : SV_POSITION;
                 float2 baseUV : TEXCOORD0;
                 float2 dissolveUV : TEXCOORD1;
+                fixed4 vertexColor : COLOR;
             };
 
             MetaVaryings vertMeta(MetaAttributes v)
@@ -236,15 +239,16 @@ Shader "Apex/FX/DissolveCutout"
                 o.pos = UnityMetaVertexPosition(v.vertex, v.uv1, v.uv2, unity_LightmapST, unity_DynamicLightmapST);
                 o.baseUV = v.uv0 * _BaseMap_ST.xy + _BaseMap_ST.zw;
                 o.dissolveUV = v.uv0 * _DissolveMap_ST.xy + _DissolveMap_ST.zw;
+                o.vertexColor = v.color;
                 return o;
             }
 
             half4 fragMeta(MetaVaryings i) : SV_Target
             {
                 half noiseValue = tex2D(_DissolveMap, i.dissolveUV).r;
-                clip(noiseValue - _DissolveAmount);
-                half edge = 1.0h - smoothstep(0.0h, max(_EdgeWidth, 1e-4h), noiseValue - _DissolveAmount);
-                half3 baseColor = tex2D(_BaseMap, i.baseUV).rgb * _BaseColor.rgb;
+                clip(ApexDissolveClipValue(noiseValue, _DissolveAmount));
+                half edge = ApexDissolveEdge(noiseValue, _DissolveAmount, _EdgeWidth);
+                half3 baseColor = tex2D(_BaseMap, i.baseUV).rgb * _BaseColor.rgb * i.vertexColor.rgb;
                 UnityMetaInput meta;
                 UNITY_INITIALIZE_OUTPUT(UnityMetaInput, meta);
                 meta.Albedo = baseColor;

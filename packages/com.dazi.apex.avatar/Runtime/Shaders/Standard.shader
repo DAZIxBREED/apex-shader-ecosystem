@@ -200,7 +200,7 @@ Shader "Apex/Avatar/Standard"
 
             float4 fragShadow(ApexShadowVaryings i) : SV_Target
             {
-                half alpha = tex2D(_MainTex, i.uv0).a * _Color.a;
+                half alpha = tex2D(_MainTex, i.uv0).a * _Color.a * i.vertexAlpha;
                 half clipValue = lerp(1.0h, alpha - _Cutoff, step(0.5h, _AlphaClip));
                 clip(clipValue);
                 SHADOW_CASTER_FRAGMENT(i)

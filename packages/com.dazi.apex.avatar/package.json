@@ -1,7 +1,7 @@
 {
   "name": "com.dazi.apex.avatar",
   "displayName": "Apex Avatar",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "unity": "2022.3",
   "description": "PCVR/Desktop custom avatar shader with packed PBR, rim, soft-wrap lighting, alpha clip, and SpectraOverdrive controls; includes an SDK mobile fallback workflow through Apex Tools.",
   "author": {
@@ -20,7 +20,7 @@
     "SpectraOverdrive"
   ],
   "dependencies": {
-    "com.dazi.apex.core": "0.3.3",
-    "com.dazi.apex.spectraoverdrive": "0.3.3"
+    "com.dazi.apex.core": "0.3.4",
+    "com.dazi.apex.spectraoverdrive": "0.3.4"
   }
 }

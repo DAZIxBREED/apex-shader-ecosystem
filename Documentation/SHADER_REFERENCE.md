@@ -1,21 +1,31 @@
-# Apex 0.3.3 Shader Reference
+# Apex 0.3.4 Shader Reference
 
-Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is now separately versioned and frozen at 1.0.
+Property names remain pre-1.0 development contracts, but the SpectraOverdrive global ABI is separately versioned and frozen at 1.0.
 
-| Shader | Intended use | Passes | Unique samplers | Target |
-|---|---|---:|---:|---:|
-| `Apex/Core/Debug` | UV/vertex diagnostic display | 1 | 1 | 2.0 |
-| `Apex/Avatar/Standard` | PCVR/Desktop avatar materials | 3 | 3 | 3.0 |
-| `Apex/World/Standard` | Opaque/cutout environment PBR | 4 | 3 default, 4 with detail | 3.0 |
-| `Apex/World/VertexBlendLite` | Two-layer vertex-red environment blend | 4 | 6 | 3.0 |
-| `Apex/Water/PoolLite` | Transparent pools/liquids | 1 | 3 | 3.0 |
-| `Apex/Water/OpaqueMobile` | Opaque low-overdraw water | 2 | 3 | 3.0 |
-| `Apex/Fog/CardLite` | Transparent fog/haze cards | 1 | 2 | 2.0 |
-| `Apex/FX/HologramLite` | Additive hologram effects | 1 | 2 | 3.0 |
-| `Apex/FX/DissolveCutout` | Lit cutout dissolve with edge emission | 4 | 4 | 3.0 |
-| `Apex/Screens/VideoPanelLite` | Opaque video and emissive panels | 1 | 1 | 2.0 |
-| `Apex/Screens/LEDPanelLite` | Procedural LED/pixel-grid video panel | 1 | 1 | 2.0 |
-| `Apex/Toon/CharacterLite` | Stylized world/PC material shading | 2 | 3 | 3.0 |
+| Shader | Intended use | Ordered pass contract | Unique samplers | Target |
+|---|---|---|---:|---:|
+| `Apex/Core/Debug` | UV/vertex diagnostic display | `FORWARD_BASE` | 1 | 2.0 |
+| `Apex/Avatar/Standard` | PCVR/Desktop avatar materials | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER` | 3 | 3.0 |
+| `Apex/World/Standard` | Opaque/cutout environment PBR | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` | 3 default, 4 with detail | 3.0 |
+| `Apex/World/VertexBlendLite` | Two-layer vertex-red environment blend | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` | 6 | 3.0 |
+| `Apex/Water/PoolLite` | Transparent pools/liquids | `FORWARD_BASE` | 3 | 3.0 |
+| `Apex/Water/OpaqueMobile` | Opaque low-overdraw animated water | `FORWARD_BASE`, `FORWARD_ADD` | 3 | 3.0 |
+| `Apex/Fog/CardLite` | Transparent fog/haze cards | `UNLIT_FOG` | 2 | 2.0 |
+| `Apex/FX/HologramLite` | Additive hologram effects | `HOLOGRAM` | 2 | 3.0 |
+| `Apex/FX/DissolveCutout` | Lit cutout dissolve with edge emission | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` | 4 | 3.0 |
+| `Apex/Screens/VideoPanelLite` | Opaque video and emissive panels | `VIDEO_PANEL` | 1 | 2.0 |
+| `Apex/Screens/LEDPanelLite` | Procedural LED/pixel-grid video panel | `LED_PANEL` | 1 | 2.0 |
+| `Apex/Toon/CharacterLite` | Stylized world/PC material shading | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` | 3 | 3.0 |
+
+## 0.3.4 parity rules
+
+- Alpha-clipped Avatar, World Standard, and Toon shadows use base alpha × material alpha × vertex alpha, matching the visible surface path.
+- World Standard Meta output carries vertex tint/alpha and its detail layer.
+- VertexBlendLite Meta emission uses the blended packed-mask B channel, matching runtime effect-mask emission.
+- Dissolve forward, additive, shadow, and Meta paths share `ApexDissolveClipValue`; forward and Meta edge emission share `ApexDissolveEdge`.
+- Toon now has additional-light and Meta coverage instead of silently omitting those paths.
+
+Avatar intentionally has no Meta pass because it is the PC avatar shader rather than a baked world material. PoolLite remains transparent ForwardBase-only. OpaqueMobile water remains a dynamic ForwardBase+ForwardAdd material rather than claiming static baked/shadow behavior.
 
 ## Quality profiles
 
@@ -26,10 +36,6 @@ World, Avatar, Toon, Vertex Blend, and Dissolve materials use mutually exclusive
 - `_APEX_QUALITY_HIGH`: enables the high specular-energy path
 
 Use **Apex > Materials > Quality** rather than changing keywords by hand. Mobile builds strip High variants automatically.
-
-Apex 0.3.3's compiler audit explicitly requests Standard, Mobile, and High profiles for quality-managed shaders and adds detail/alpha-cutout stress profiles where supported. The generated validation scene mirrors those profile labels and records active pass names in `ApexValidationSceneManifest.json`.
-
-`Apex/World/Standard` also keeps its Meta pass in parity with the forward material for detail albedo and alpha cutout, so baked coverage does not silently diverge from the visible surface.
 
 ## Shared packed mask
 
@@ -42,23 +48,11 @@ Create it with **Apex > Texture Tools > Packed Mask Builder**.
 
 ## SpectraOverdrive
 
-Visual shaders expose `_SpectraAmount`, `_SpectraGroup`, and `_SpectraBandWeights`. Drivers use ordinary `_ApexSpectra...` globals or `_UdonApexSpectra...` globals in VRChat.
-
-ABI 1.0 adds optional safety controls:
-
-| Field | Meaning |
-|---|---|
-| `_ApexSpectraSafetyActive` / `_UdonApexSpectraSafetyActive` | Enables the safety vector. |
-| `_ApexSpectraSafety` / `_UdonApexSpectraSafety` X | Maximum accepted intensity. |
-| Y | Strobe enabled when `>= 0.5`. |
-| Z | Maximum accepted strobe pulse. |
-| W | Reserved; write zero. |
-
-See the full [ABI document](../packages/com.dazi.apex.spectraoverdrive/Documentation/ABI.md).
+Visual shaders expose `_SpectraAmount`, `_SpectraGroup`, and `_SpectraBandWeights`. Drivers use ordinary `_ApexSpectra...` globals or `_UdonApexSpectra...` globals in VRChat. See the [ABI document](../packages/com.dazi.apex.spectraoverdrive/Documentation/ABI.md).
 
 ## Avatar platform rule
 
-`Apex/Avatar/Standard` is a custom PC shader. Use **Apex > Mobile Avatar** tools to generate SDK-provided `VRChat/Mobile` materials for Android, Quest, and iOS avatar variants. Batch generation writes `.apex-mobile-pairing.json` records beside the generated material.
+`Apex/Avatar/Standard` is a custom PC shader. Use **Apex > Mobile Avatar** tools to generate SDK-provided `VRChat/Mobile` materials for Android, Quest, and iOS avatar variants.
 
 ## Debug modes
 
