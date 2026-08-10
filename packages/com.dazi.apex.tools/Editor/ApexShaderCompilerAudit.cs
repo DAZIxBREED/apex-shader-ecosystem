@@ -23,6 +23,7 @@ namespace DAZI.Apex.Tools
             public string graphicsDeviceType;
             public int shaderCount;
             public int compiledProfileCount;
+            public int requestedPassCompileCount;
             public int errorCount;
             public int warningCount;
             public ShaderRecord[] shaders;
@@ -35,6 +36,7 @@ namespace DAZI.Apex.Tools
             public bool found;
             public bool supported;
             public int passCount;
+            public string[] passNames;
             public ProfileRecord[] profiles;
         }
 
@@ -43,7 +45,10 @@ namespace DAZI.Apex.Tools
         {
             public string profile;
             public string[] keywords;
-            public int compiledPassCount;
+            public bool detailEnabled;
+            public bool alphaClipEnabled;
+            public int requestedPassCount;
+            public string[] passNames;
             public MessageRecord[] messages;
         }
 
@@ -64,6 +69,7 @@ namespace DAZI.Apex.Tools
             public string qualityKeyword;
             public float qualityValue;
             public bool detail;
+            public bool alphaClip;
         }
 
         [MenuItem("Apex/Validation/Run Shader Compiler Audit")]
@@ -110,6 +116,7 @@ namespace DAZI.Apex.Tools
             var startWarningCount = warnings.Count;
             var records = new List<ShaderRecord>();
             var compiledProfileCount = 0;
+            var requestedPassCompileCount = 0;
 
             foreach (var shaderName in ApexShaderCatalog.RequiredShaderNames)
             {
@@ -123,9 +130,29 @@ namespace DAZI.Apex.Tools
                         found = false,
                         supported = false,
                         passCount = 0,
+                        passNames = Array.Empty<string>(),
                         profiles = Array.Empty<ProfileRecord>()
                     });
                     continue;
+                }
+
+                var probeMaterial = new Material(shader)
+                {
+                    hideFlags = HideFlags.HideAndDontSave
+                };
+                string[] passNames;
+                try
+                {
+                    passNames = ReadPassNames(probeMaterial, warnings);
+                }
+                finally
+                {
+                    UnityEngine.Object.DestroyImmediate(probeMaterial);
+                }
+
+                if (!shader.isSupported)
+                {
+                    warnings.Add($"{shaderName}: shader is unsupported by the current editor graphics API {SystemInfo.graphicsDeviceType}.");
                 }
 
                 var shaderRecord = new ShaderRecord
@@ -133,14 +160,17 @@ namespace DAZI.Apex.Tools
                     shader = shaderName,
                     found = true,
                     supported = shader.isSupported,
-                    passCount = shader.passCount
+                    passCount = passNames.Length,
+                    passNames = passNames
                 };
 
                 var profiles = BuildProfiles(shader);
                 var profileRecords = new List<ProfileRecord>();
                 foreach (var profile in profiles)
                 {
-                    profileRecords.Add(CompileProfileAndCollect(shader, profile, errors, warnings));
+                    var profileRecord = CompileProfileAndCollect(shader, profile, errors, warnings);
+                    profileRecords.Add(profileRecord);
+                    requestedPassCompileCount += profileRecord.requestedPassCount;
                     compiledProfileCount++;
                 }
 
@@ -156,6 +186,7 @@ namespace DAZI.Apex.Tools
                 graphicsDeviceType = SystemInfo.graphicsDeviceType.ToString(),
                 shaderCount = records.Count,
                 compiledProfileCount = compiledProfileCount,
+                requestedPassCompileCount = requestedPassCompileCount,
                 errorCount = errors.Count - startErrorCount,
                 warningCount = warnings.Count - startWarningCount,
                 shaders = records.ToArray()
@@ -178,9 +209,14 @@ namespace DAZI.Apex.Tools
             try
             {
                 ConfigureProfile(material, profile);
-                ShaderUtil.ClearShaderMessages(shader);
+                var passNames = ReadPassNames(material, warnings);
+                if (passNames.Length == 0)
+                {
+                    errors.Add($"{shader.name} [{profile.name}]: material exposes zero active passes.");
+                }
 
-                for (var pass = 0; pass < shader.passCount; pass++)
+                ShaderUtil.ClearShaderMessages(shader);
+                for (var pass = 0; pass < material.passCount; pass++)
                 {
                     ShaderUtil.CompilePass(material, pass, true);
                 }
@@ -213,7 +249,10 @@ namespace DAZI.Apex.Tools
                 {
                     profile = profile.name,
                     keywords = material.shaderKeywords.OrderBy(keyword => keyword, StringComparer.Ordinal).ToArray(),
-                    compiledPassCount = shader.passCount,
+                    detailEnabled = profile.detail,
+                    alphaClipEnabled = profile.alphaClip,
+                    requestedPassCount = material.passCount,
+                    passNames = passNames,
                     messages = messageRecords
                 };
             }
@@ -224,7 +263,10 @@ namespace DAZI.Apex.Tools
                 {
                     profile = profile.name,
                     keywords = material.shaderKeywords.OrderBy(keyword => keyword, StringComparer.Ordinal).ToArray(),
-                    compiledPassCount = 0,
+                    detailEnabled = profile.detail,
+                    alphaClipEnabled = profile.alphaClip,
+                    requestedPassCount = 0,
+                    passNames = Array.Empty<string>(),
                     messages = Array.Empty<MessageRecord>()
                 };
             }
@@ -234,6 +276,26 @@ namespace DAZI.Apex.Tools
             }
         }
 
+        private static string[] ReadPassNames(Material material, List<string> warnings)
+        {
+            var passNames = new string[material.passCount];
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (var pass = 0; pass < material.passCount; pass++)
+            {
+                var passName = material.GetPassName(pass) ?? string.Empty;
+                passNames[pass] = passName;
+                if (string.IsNullOrWhiteSpace(passName))
+                {
+                    warnings.Add($"{material.shader.name}: pass index {pass} is unnamed.");
+                }
+                else if (!seen.Add(passName))
+                {
+                    warnings.Add($"{material.shader.name}: duplicate active pass name {passName}.");
+                }
+            }
+            return passNames;
+        }
+
         private static List<CompileProfile> BuildProfiles(Shader shader)
         {
             var profiles = new List<CompileProfile>();
@@ -241,6 +303,8 @@ namespace DAZI.Apex.Tools
             var hasMobile = HasLocalKeyword(shader, "_APEX_QUALITY_MOBILE");
             var hasHigh = HasLocalKeyword(shader, "_APEX_QUALITY_HIGH");
             var hasQualityContract = hasStandard || hasMobile || hasHigh;
+            var hasDetail = HasLocalKeyword(shader, "_APEX_DETAIL");
+            var hasAlphaClip = shader.FindPropertyIndex("_AlphaClip") >= 0;
 
             if (hasQualityContract)
             {
@@ -277,7 +341,7 @@ namespace DAZI.Apex.Tools
                 profiles.Add(new CompileProfile { name = "Default" });
             }
 
-            if (HasLocalKeyword(shader, "_APEX_DETAIL"))
+            if (hasDetail)
             {
                 profiles.Add(new CompileProfile
                 {
@@ -285,6 +349,29 @@ namespace DAZI.Apex.Tools
                     qualityKeyword = hasStandard ? "_APEX_QUALITY_STANDARD" : null,
                     qualityValue = 0f,
                     detail = true
+                });
+            }
+
+            if (hasAlphaClip)
+            {
+                profiles.Add(new CompileProfile
+                {
+                    name = hasQualityContract ? "Standard+AlphaClip" : "Default+AlphaClip",
+                    qualityKeyword = hasStandard ? "_APEX_QUALITY_STANDARD" : null,
+                    qualityValue = 0f,
+                    alphaClip = true
+                });
+            }
+
+            if (hasDetail && hasAlphaClip)
+            {
+                profiles.Add(new CompileProfile
+                {
+                    name = "Standard+Detail+AlphaClip",
+                    qualityKeyword = hasStandard ? "_APEX_QUALITY_STANDARD" : null,
+                    qualityValue = 0f,
+                    detail = true,
+                    alphaClip = true
                 });
             }
 
@@ -309,11 +396,27 @@ namespace DAZI.Apex.Tools
 
             if (profile.detail)
             {
-                material.EnableKeyword("_APEX_DETAIL");
+                if (HasLocalKeyword(material.shader, "_APEX_DETAIL"))
+                {
+                    material.EnableKeyword("_APEX_DETAIL");
+                }
                 if (material.HasProperty("_DetailEnabled"))
                 {
                     material.SetFloat("_DetailEnabled", 1f);
                 }
+                if (material.HasProperty("_DetailStrength"))
+                {
+                    material.SetFloat("_DetailStrength", 0.8f);
+                }
+            }
+
+            if (material.HasProperty("_AlphaClip"))
+            {
+                material.SetFloat("_AlphaClip", profile.alphaClip ? 1f : 0f);
+            }
+            if (profile.alphaClip && material.HasProperty("_Cutoff"))
+            {
+                material.SetFloat("_Cutoff", 0.5f);
             }
         }
 
