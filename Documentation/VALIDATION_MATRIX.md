@@ -1,30 +1,48 @@
-# Apex 0.3.3 Validation Matrix
+# Apex 0.3.4 Validation Matrix
 
 ## Repository/static checks
 
 - All package manifests and local dependency versions match `VERSION`.
 - Local HLSL includes resolve and Unity metadata GUIDs are deterministic/unique.
-- Shader names, named ShaderLab passes, local quality contracts, properties/uniforms, stereo setup, instancing, and mobile-world restrictions are checked.
+- The locked 1.0 roadmap contract is validated.
+- Every current shader must match its exact ordered ShaderLab pass contract.
+- 0.3.4 parity invariants protect vertex-alpha shadow coverage, World Meta vertex/detail parity, VertexBlend masked Meta emission, Dissolve shared clip/edge math, and Toon ForwardAdd/Meta coverage.
+- Shader names, quality contracts, properties/uniforms, stereo setup, instancing, and mobile-world restrictions are checked.
 - SpectraOverdrive ABI 1.0 and `_Udon` safety globals are checked.
-- The dedicated validation project must reference all twelve local packages and Unity 2022.3.22f1.
-- World/Standard Meta-pass detail/cutout parity and the 0.3.3 stress-harness contracts are statically protected.
-- Python/shell tooling parses and UPM archives are reproducible.
+- UPM archives must build reproducibly.
+
+## Intentional pass matrix
+
+| Shader | Required ordered passes |
+|---|---|
+| `Apex/Core/Debug` | `FORWARD_BASE` |
+| `Apex/Avatar/Standard` | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER` |
+| `Apex/World/Standard` | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` |
+| `Apex/World/VertexBlendLite` | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` |
+| `Apex/Water/PoolLite` | `FORWARD_BASE` |
+| `Apex/Water/OpaqueMobile` | `FORWARD_BASE`, `FORWARD_ADD` |
+| `Apex/Fog/CardLite` | `UNLIT_FOG` |
+| `Apex/FX/HologramLite` | `HOLOGRAM` |
+| `Apex/FX/DissolveCutout` | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` |
+| `Apex/Screens/VideoPanelLite` | `VIDEO_PANEL` |
+| `Apex/Screens/LEDPanelLite` | `LED_PANEL` |
+| `Apex/Toon/CharacterLite` | `FORWARD_BASE`, `FORWARD_ADD`, `SHADOW_CASTER`, `META` |
+
+These omissions are intentional. Avatar is not a baked-world shader; transparent PoolLite remains a focused transparent pass; OpaqueMobile water remains animated/dynamic rather than claiming static baked/shadow parity.
 
 ## Unity compiler audit
 
-`ApexShaderCompilerAudit` runs inside Unity and synchronously requests compilation of every active pass for each required Apex shader. Quality-managed shaders are compiled in Standard, Mobile, and High profiles. Detail and alpha-cutout stress profiles are also requested where those material paths exist.
-
-The audit writes:
+`ApexShaderCompilerAudit` synchronously requests compilation of every active pass/profile and writes:
 
 ```text
 Assets/ApexValidation/Generated/ApexShaderCompilerReport.json
 ```
 
-The report records pass names, requested pass-compile counts, active keywords, detail/alpha stress flags, compiler severity/platform/source location, shader/profile context, Unity version, active build target, and graphics API. Package Doctor full/batch validation includes these messages and batch validation fails when the audit reports compiler errors.
+Package Doctor also compares Unity's actual pass names/order with `ApexShaderCatalog` before compiler auditing.
 
 ## Generated validation scene
 
-`ApexValidationSceneBuilder` now creates separate fixtures for quality/stress profiles rather than one material per shader. It also generates:
+The Validation Project generates:
 
 ```text
 Assets/ApexValidation/Generated/ApexValidationScene.unity
@@ -33,23 +51,20 @@ Assets/ApexValidation/Generated/Textures/ApexValidationAlphaChecker.png
 Assets/ApexValidation/Generated/Meshes/ApexValidationVertexBlendSphere.asset
 ```
 
-The checker texture makes alpha-cutout coverage visible. The generated vertex-gradient sphere drives both layers of `Apex/World/VertexBlendLite`. The scene manifest records every fixture, material path, object position, active keywords, active pass names, and stress-profile flags.
-
 ## Runtime matrix
 
 | Test | Windows PCVR/Desktop | Android/Quest | iOS |
 |---|---:|---:|---:|
 | Unity 2022.3.22f1 clean import | Pending | Pending | Pending |
-| 0.3.3 synchronous shader compiler audit | Pending | Pending | Pending |
-| 0.3.3 generated stress-scene render | Pending | Pending | Pending |
+| 0.3.4 synchronous shader compiler audit | Pending | Pending | Pending |
+| 0.3.4 stress-scene render | Pending | Pending | Pending |
+| Exact ShaderLab pass contract in Unity | Pending | Pending | Pending |
 | Alpha-cutout visual/shadow/meta parity | Pending | Pending | Pending |
-| Vertex-blend two-layer visual coverage | Pending | Pending | Pending |
+| Vertex-blend baked emission parity | Pending | Pending | Pending |
 | Single-pass stereo | Pending | Pending | Pending |
 | GPU instancing | Pending | Pending | Pending |
 | Directional, point, spot, shadows | Pending | Pending | Pending |
 | Lightmap/SH and reflection probe | Pending | Pending | Pending |
-| Spectra Unity global driver | Pending | Pending | Pending |
-| Spectra `_Udon` driver and safety caps | N/A | Pending | Pending |
 | VRChat SDK world build | Pending | Pending | Pending |
 | On-device performance capture | N/A | Pending | Pending |
 | PC custom avatar upload | Pending | N/A | N/A |
@@ -64,14 +79,11 @@ Unity -batchmode -quit \
   -logFile ./ValidationProject/apex-validation.log
 ```
 
-`RunBatch` rebuilds the stress scene, writes its manifest/test assets, runs Package Doctor, and therefore executes the compiler audit before returning success.
+## 0.3.4 exit gate
 
-## Acceptance criteria for 0.4
+- Static CI green.
+- Exact pass-contract CI green.
+- All known forward/shadow/Meta mismatches in the current shader set corrected or explicitly documented as intentional pass omissions.
+- Validation scene and compiler audit continue to describe the same stress profiles.
 
-- The full clean-import/compiler-audit matrix is executed and logs/reports are retained.
-- No shader compiler errors or pink validation fixtures.
-- Alpha cutout, detail, vertex blending, shadows, and Meta/lightmap behavior match their forward-rendered materials.
-- Correct stereo, light, shadow, lightmap, and reflection-probe behavior.
-- Mobile profiles show no High-quality variants in build logs.
-- Mobile world effects meet documented sampler/pass/overdraw budgets on target devices.
-- Current VRChat SDK successfully builds the world matrix and generated mobile avatar fallbacks.
+The next locked milestone is **0.3.5 — lighting, GI, instancing, and stereo hardening**.
