@@ -23,6 +23,8 @@ jobs:
           bash -n scripts/publish_github.sh
           git diff --check
           git diff-tree --root --check --no-commit-id -r HEAD
+      - name: Validate locked roadmap contract
+        run: python3 scripts/validate_roadmap.py
       - name: Validate package graph and shader source
         run: python3 scripts/validate_repo.py
       - name: Confirm generated metadata is reproducible
