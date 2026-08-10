@@ -1,6 +1,6 @@
 # Repository Status
 
-**Version:** 0.3.2
+**Version:** 0.3.3
 **Maturity:** Pre-alpha implementation
 **Unity baseline:** 2022.3.22f1, Built-in Render Pipeline
 
@@ -13,16 +13,18 @@
 - Dependency-free optional integration globals plus an editor monitor for live Unity/Udon values.
 - PC character fallback metadata, batch SDK mobile-material generation, and machine-readable source/fallback pairing records.
 - Material quality profiles, Avatar look presets, packed-mask authoring, project/material validation, variant stripping, variant usage reports, and synchronous shader compiler auditing.
-- Dedicated local-package Unity validation project and automated scene builder.
-- Machine-readable compiler report output under `Assets/ApexValidation/Generated/` when validation runs in Unity.
+- Dedicated local-package Unity validation project with a generated stress-profile scene.
+- Machine-readable compiler and validation-scene manifest output under `Assets/ApexValidation/Generated/` when validation runs in Unity.
 
-## 0.3.2 hardening
+## 0.3.3 hardening
 
-- Added a shared required-shader catalog used by compiler validation and Package Doctor.
-- Added synchronous per-pass shader compilation for Standard, Mobile, High, and detail-enabled profiles where applicable.
-- Package Doctor now includes compiler messages in full/batch validation and fails batch validation on shader compiler errors.
-- Centralized Unity AssetDatabase folder creation for generated reports and mobile fallback output.
-- Corrected Core HLSL version constants and aligned every package/direct internal dependency pin to 0.3.2.
+- Expanded validation-scene coverage into Standard, Mobile, High, detail, alpha-cutout, and combined detail+alpha stress profiles where supported.
+- Added a generated checker-alpha texture so cutout fixtures exercise real coverage differences.
+- Added a generated vertex-gradient mesh so `Apex/World/VertexBlendLite` visibly exercises both blend layers.
+- Compiler reports now include active pass names and total requested pass compiles while matching the scene's stress-profile labels.
+- Repository validation now requires named ShaderLab passes and protects the new stress-harness contracts.
+- Corrected `Apex/World/Standard` Meta-pass detail and alpha-cutout parity for lightmapping.
+- Aligned every package, direct internal dependency pin, repository version, and Core HLSL version macro to 0.3.3.
 
 ## Platform contract
 
@@ -34,11 +36,11 @@
 
 ## Validation boundary
 
-Repository CI verifies static source/package contracts, metadata reproducibility, and deterministic package archives. The 0.3.2 compiler audit requires Unity 2022.3.22f1; it is now wired into the Validation Project but has not yet been executed on every target graphics API in this repository workflow.
+Repository CI verifies static source/package contracts, metadata reproducibility, and deterministic package archives. The 0.3.3 compiler audit and stress scene require Unity 2022.3.22f1; they are wired into the Validation Project but still need execution across the target graphics APIs and devices.
 
 ## Not yet proven
 
-- Unity batch compilation on Direct3D 11, Vulkan/GLES3, and Metal using the new compiler audit.
+- Unity batch compilation on Direct3D 11, Vulkan/GLES3, and Metal using the compiler audit.
 - VRChat SDK build/upload validation.
 - Correct single-pass stereo on device.
 - On-device performance and visual parity measurements.

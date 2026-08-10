@@ -41,6 +41,8 @@ INCLUDE_RE = re.compile(r'#include\s+"Packages/([^/"]+)/(.*?)"')
 SHADER_RE = re.compile(r'\bShader\s+"([^"]+)"')
 PROPERTY_RE = re.compile(r'^\s*(?:\[[^\]]+\]\s*)*(_\w+)\s*\(', re.MULTILINE)
 TARGET_RE = re.compile(r'#pragma\s+target\s+([0-9.]+)')
+PASS_RE = re.compile(r'\bPass\s*\{')
+PASS_NAME_RE = re.compile(r'\bName\s+"[^"]+"')
 BLOCK_COMMENTS = re.compile(r'/\*.*?\*/', re.DOTALL)
 LINE_COMMENTS = re.compile(r'//.*')
 
@@ -162,6 +164,15 @@ for package_name, (package_dir, manifest) in manifests.items():
             properties = PROPERTY_RE.findall(stripped)
             if len(properties) != len(set(properties)):
                 fail(f"{asset.relative_to(ROOT)} has duplicate ShaderLab properties")
+            pass_count = len(PASS_RE.findall(stripped))
+            pass_name_count = len(PASS_NAME_RE.findall(stripped))
+            if pass_count == 0:
+                fail(f"{asset.relative_to(ROOT)} declares no ShaderLab passes")
+            elif pass_count != pass_name_count:
+                fail(
+                    f"{asset.relative_to(ROOT)} must name every ShaderLab pass "
+                    f"({pass_name_count} names for {pass_count} passes)"
+                )
             if "#pragma multi_compile_instancing" not in stripped:
                 fail(f"{asset.relative_to(ROOT)} lacks instancing variants")
             if "UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX" not in stripped:
@@ -215,11 +226,29 @@ for relative in (
     require_text(path, ('"VRCFallback"="toonstandard"', "_MainTex", "_Color", "_BumpMap", "_BumpScale"))
 
 require_text(
+    PACKAGES / "com.dazi.apex.world/Runtime/Shaders/Standard.shader",
+    (
+        "#pragma shader_feature_local _APEX_DETAIL",
+        "float2 detailUV : TEXCOORD1;",
+        "baseSample.a - _Cutoff",
+        "baseSample.rgb *= lerp",
+    ),
+)
+require_text(
     PACKAGES / "com.dazi.apex.tools/Editor/ApexShaderCompilerAudit.cs",
     (
-        "ShaderUtil.CompilePass", "ShaderUtil.GetShaderMessages",
+        "ShaderUtil.CompilePass", "ShaderUtil.GetShaderMessages", "material.GetPassName",
         "ShaderCompilerMessageSeverity.Error", "ApexShaderCompilerReport.json",
+        "requestedPassCompileCount", "Standard+AlphaClip", "Standard+Detail+AlphaClip",
         "_APEX_QUALITY_MOBILE", "_APEX_QUALITY_HIGH", "_APEX_DETAIL",
+    ),
+)
+require_text(
+    PACKAGES / "com.dazi.apex.tools/Editor/ApexValidationSceneBuilder.cs",
+    (
+        "ApexValidationSceneManifest.json", "ApexValidationAlphaChecker.png",
+        "ApexValidationVertexBlendSphere.asset", "Standard+Detail+AlphaClip",
+        "GetOrCreateAlphaChecker", "CreateVertexBlendMesh", "ValidateCoverage",
     ),
 )
 require_text(
