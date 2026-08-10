@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.3.3 — Stress-scene and pass-parity hardening
+
+### Added
+
+- Validation-scene profile expansion for Standard, Mobile, and High quality states.
+- Detail, alpha-cutout, and combined detail+alpha stress fixtures where supported.
+- Generated checker-alpha texture for visible cutout validation.
+- Generated vertex-gradient mesh for `Apex/World/VertexBlendLite` so both blend layers are exercised.
+- `ApexValidationSceneManifest.json` with fixture/material/profile/pass/keyword coverage.
+- Pass names and total requested pass compiles in `ApexShaderCompilerReport.json`.
+- Repository validation requiring every ShaderLab pass to be named and preserving the 0.3.3 stress-harness contracts.
+
+### Fixed
+
+- `Apex/World/Standard` Meta pass now applies the detail layer and alpha cutout so baked albedo/coverage matches the forward material path.
+
+### Changed
+
+- Compiler auditing now requests the same alpha/detail stress profiles represented in the generated validation scene.
+- All twelve UPM packages, direct Apex dependency pins, repository metadata, and Core HLSL version constants are aligned to `0.3.3`.
+
+### Validation boundary
+
+- Hosted repository CI still validates source structure, package/dependency consistency, deterministic Unity metadata, and reproducible UPM archives.
+- The generated stress scene and synchronous compiler audit require Unity 2022.3.22f1.
+- Direct3D 11, Vulkan/GLES3, Metal, VRChat SDK builds, stereo/device rendering, and profiling remain target-runtime validation work.
+
 ## 0.3.2 — Shader compiler audit and validation hardening
 
 ### Added
