@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.3.4 — Exact pass contracts and parity closure
+
+### Added
+
+- Exact ordered ShaderLab pass contracts for all twelve current Apex shaders through `ApexShaderCatalog`.
+- `scripts/validate_pass_contracts.py` and a dedicated CI gate that rejects missing, added, renamed, or reordered passes outside the contract.
+- Unity Package Doctor validation of the same exact pass contracts using the editor's actual material pass names.
+- `FORWARD_ADD` and `META` passes for `Apex/Toon/CharacterLite`.
+- Vertex-alpha transport in the shared Apex ShadowCaster varyings.
+
+### Fixed
+
+- Avatar, World Standard, and Toon cutout shadows now use the same vertex/base alpha represented by their visible surface path.
+- World Standard Meta output now includes vertex tint/alpha while preserving detail and cutout parity.
+- VertexBlendLite Meta emission now uses the same blended B-channel effect mask as runtime emission.
+- Dissolve Meta now uses the shared dissolve clip/edge helpers used by the visible and shadow paths and includes vertex tint in baked albedo.
+
+### Changed
+
+- Pass omissions are now explicit contracts rather than accidental behavior: Avatar has no baked-world Meta pass; PoolLite is transparent ForwardBase-only; OpaqueMobile water remains ForwardBase+ForwardAdd; unlit/effect/screen families keep focused single-pass contracts.
+- All twelve UPM packages, direct Apex dependency pins, repository metadata, and Core HLSL version constants are aligned to `0.3.4`.
+
+### Validation boundary
+
+- Repository CI verifies exact pass sets, source/package consistency, deterministic Unity metadata, and reproducible UPM archives.
+- Unity 2022.3.22f1 execution on Direct3D 11, Vulkan/GLES3, Metal, VRChat SDK builds, stereo/device rendering, and profiling remain runtime validation work.
+
 ## 0.3.3 — Stress-scene and pass-parity hardening
 
 ### Added
