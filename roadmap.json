@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "locked",
+  "baseline": "0.3.3",
+  "target": "1.0.0",
+  "rules": {
+    "packageCount": 12,
+    "skipRequiredGates": false,
+    "allowBreakingSpectraBefore1": false,
+    "allowNewTopLevelPackagesBefore1": false,
+    "allowUrpHdrpBefore1": false,
+    "allowEmergencyPatchInsertion": true,
+    "emergencyPatchScope": "blocker/security/build/data-loss fixes only"
+  },
+  "sequence": [
+    { "version": "0.3.4", "phase": "foundation-closure", "name": "pass parity" },
+    { "version": "0.3.5", "phase": "foundation-closure", "name": "lighting GI instancing stereo" },
+    { "version": "0.3.6", "phase": "foundation-closure", "name": "platform execution harness" },
+    { "version": "0.4.0", "phase": "platform-qualification", "name": "first cross-platform qualification" },
+    { "version": "0.4.1", "phase": "platform-qualification", "name": "platform fix pack" },
+    { "version": "0.4.2", "phase": "platform-qualification", "name": "platform profile freeze" },
+    { "version": "0.5.0", "phase": "production-shaders", "name": "character and world families" },
+    { "version": "0.5.1", "phase": "production-shaders", "name": "water fog FX screens toon families" },
+    { "version": "0.5.2", "phase": "production-shaders", "name": "shader family stabilization" },
+    { "version": "0.6.0", "phase": "authoring", "name": "material authoring UX" },
+    { "version": "0.6.1", "phase": "authoring", "name": "migration and material reliability" },
+    { "version": "0.7.0", "phase": "spectraoverdrive", "name": "SpectraOverdrive native integration" },
+    { "version": "0.7.1", "phase": "spectraoverdrive", "name": "integration hardening" },
+    { "version": "0.8.0", "phase": "performance", "name": "performance architecture" },
+    { "version": "0.8.1", "phase": "performance", "name": "performance qualification" },
+    { "version": "0.9.0", "phase": "release-candidate", "name": "RC1 public contract freeze" },
+    { "version": "0.9.1", "phase": "release-candidate", "name": "RC2 regression qualification" },
+    { "version": "0.9.2", "phase": "release-candidate", "name": "RC3 final release audit" },
+    { "version": "1.0.0", "phase": "production", "name": "production release" }
+  ]
+}
