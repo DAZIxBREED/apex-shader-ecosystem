@@ -208,7 +208,7 @@ Shader "Apex/Toon/CharacterLite"
 
             float4 fragShadow(ApexShadowVaryings i) : SV_Target
             {
-                half alpha = tex2D(_MainTex, i.uv0).a * _Color.a;
+                half alpha = tex2D(_MainTex, i.uv0).a * _Color.a * i.vertexAlpha;
                 half clipValue = lerp(1.0h, alpha - _Cutoff, step(0.5h, _AlphaClip));
                 clip(clipValue);
                 SHADOW_CASTER_FRAGMENT(i)
@@ -241,12 +241,14 @@ Shader "Apex/Toon/CharacterLite"
                 float2 uv0 : TEXCOORD0;
                 float2 uv1 : TEXCOORD1;
                 float2 uv2 : TEXCOORD2;
+                fixed4 color : COLOR;
             };
 
             struct ApexToonMetaVaryings
             {
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                fixed4 vertexColor : COLOR;
             };
 
             ApexToonMetaVaryings vertMeta(ApexToonMetaAttributes v)
@@ -254,12 +256,13 @@ Shader "Apex/Toon/CharacterLite"
                 ApexToonMetaVaryings o;
                 o.pos = UnityMetaVertexPosition(v.vertex, v.uv1, v.uv2, unity_LightmapST, unity_DynamicLightmapST);
                 o.uv = v.uv0 * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.vertexColor = v.color;
                 return o;
             }
 
             half4 fragMeta(ApexToonMetaVaryings i) : SV_Target
             {
-                half4 baseSample = tex2D(_MainTex, i.uv) * _Color;
+                half4 baseSample = tex2D(_MainTex, i.uv) * _Color * i.vertexColor;
                 half clipValue = lerp(1.0h, baseSample.a - _Cutoff, step(0.5h, _AlphaClip));
                 clip(clipValue);
 
