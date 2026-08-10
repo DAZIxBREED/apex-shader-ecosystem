@@ -6,6 +6,8 @@ A clean-room, modular, handwritten HLSL/CG shader ecosystem by **DAZIxBREED** fo
 **World design targets:** Windows PCVR/Desktop, Android/Quest, and iOS
 **Avatar design targets:** Apex custom shaders on PC; SDK-provided `VRChat/Mobile` fallback materials on Android, Quest, and iOS
 
+Development from 0.3.3 through production 1.0 is governed by the **[locked roadmap](ROADMAP.md)** and its **[release gates](Documentation/RELEASE_GATES.md)**. New feature ideas do not displace that sequence; non-blocking work outside the locked milestones is deferred until after 1.0.
+
 ## What changed in 0.3.3
 
 Apex 0.3.3 turns the 0.3.2 compiler harness into a stronger shader/runtime stress matrix:
@@ -61,6 +63,8 @@ Open `ValidationProject/` directly in Unity 2022.3.22f1, then use **Apex Validat
 
 ## Reference
 
+- [Locked roadmap to 1.0](ROADMAP.md)
+- [Release gates](Documentation/RELEASE_GATES.md)
 - [Installation guide](Documentation/INSTALLATION.md)
 - [Shader reference](Documentation/SHADER_REFERENCE.md)
 - [Validation matrix](Documentation/VALIDATION_MATRIX.md)
