@@ -60,29 +60,41 @@ namespace DAZI.Apex.Tools
         public static void PrintCompatibilityContract()
         {
             Debug.Log(
-                "Apex 0.3.2 compatibility contract:\n" +
+                "Apex 0.3.4 compatibility contract:\n" +
                 "• Unity/VRChat baseline: Unity 2022.3.22f1, Built-in Render Pipeline.\n" +
                 "• Custom Apex world shaders: designed for Windows PCVR, Android/Quest, and iOS world builds.\n" +
                 "• Custom Apex avatar shaders: PCVR/Desktop only in VRChat. Mobile avatar uploads must use SDK-provided VRChat/Mobile shaders.\n" +
-                "• Full validation synchronously compiles the current Apex material/pass profiles and writes a compiler report.\n" +
+                "• Full validation checks exact ShaderLab pass contracts and synchronously compiles the current Apex material/pass profiles.\n" +
                 "• Use Apex > Mobile Avatar Fallback Builder to generate a legal mobile material."
             );
         }
 
         private static void ValidateShaders(List<string> errors, List<string> warnings)
         {
-            foreach (var shaderName in ApexShaderCatalog.RequiredShaderNames)
+            foreach (var contract in ApexShaderCatalog.RequiredShaders)
             {
-                var shader = Shader.Find(shaderName);
+                var shader = Shader.Find(contract.ShaderName);
                 if (shader == null)
                 {
-                    errors.Add($"Required shader was not found: {shaderName}");
+                    errors.Add($"Required shader was not found: {contract.ShaderName}");
                     continue;
+                }
+
+                var actualPasses = Enumerable.Range(0, shader.passCount)
+                    .Select(shader.GetPassName)
+                    .ToArray();
+                if (!actualPasses.SequenceEqual(contract.ExpectedPassNames))
+                {
+                    errors.Add(
+                        $"{contract.ShaderName}: ShaderLab pass contract mismatch. " +
+                        $"Expected [{string.Join(", ", contract.ExpectedPassNames)}], " +
+                        $"found [{string.Join(", ", actualPasses)}]."
+                    );
                 }
 
                 if (!shader.isSupported)
                 {
-                    warnings.Add($"Shader is present but unsupported by the current editor graphics API: {shaderName}");
+                    warnings.Add($"Shader is present but unsupported by the current editor graphics API: {contract.ShaderName}");
                 }
             }
         }
