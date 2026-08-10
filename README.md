@@ -2,23 +2,25 @@
 
 A clean-room, modular, handwritten HLSL/CG shader ecosystem by **DAZIxBREED** for Unity **2022.3.22f1**, the Built-in Render Pipeline, and VRChat-oriented content.
 
-**Current development version:** `0.3.2` pre-alpha
+**Current development version:** `0.3.3` pre-alpha
 **World design targets:** Windows PCVR/Desktop, Android/Quest, and iOS
 **Avatar design targets:** Apex custom shaders on PC; SDK-provided `VRChat/Mobile` fallback materials on Android, Quest, and iOS
 
-## What changed in 0.3.2
+## What changed in 0.3.3
 
-Apex 0.3.2 turns Unity shader compilation into an explicit validation step instead of relying only on static source checks:
+Apex 0.3.3 turns the 0.3.2 compiler harness into a stronger shader/runtime stress matrix:
 
-- Added a shared required-shader catalog used by Package Doctor and compiler validation.
-- Added `ApexShaderCompilerAudit`, which synchronously requests compilation of every pass in the current Apex material profiles through Unity's editor shader compiler.
-- Quality-managed shaders are audited in Standard, Mobile, and High configurations; shaders exposing `_APEX_DETAIL` also receive a Standard+Detail compile pass.
-- Compiler errors and warnings are captured with severity, platform, source path, line, details, build target, graphics API, Unity version, shader profile, and pass counts in `Assets/ApexValidation/Generated/ApexShaderCompilerReport.json`.
-- Package Doctor batch validation now fails when the compiler audit reports shader errors.
-- Centralized generated `Assets/` folder creation so compiler reports, variant reports, and mobile-avatar fallback output use one AssetDatabase-safe implementation.
-- Corrected the Core HLSL version constants to `0.3.2` and aligned all twelve UPM packages plus internal dependency pins to the same patch version.
+- Validation-scene generation now expands quality-aware shaders into separate Standard, Mobile, and High fixtures instead of showing only one material state.
+- Detail and alpha-cutout stress profiles are generated where the shader exposes those paths, including a combined Standard+Detail+AlphaClip fixture.
+- The scene builder generates a checker-alpha texture so cutout fixtures visibly exercise alpha rejection instead of merely setting a float.
+- `Apex/World/VertexBlendLite` receives a generated mesh with an actual red-channel vertex gradient, exercising both material layers in the validation scene.
+- `ApexValidationSceneManifest.json` records each generated fixture, material path, position, active keywords, pass names, and stress flags.
+- Compiler reports now record active ShaderLab pass names and total requested pass compiles, and audit the same alpha/detail stress profiles used by the scene.
+- Repository validation now requires every Apex ShaderLab pass to be named and protects the new compiler/scene stress contracts.
+- Fixed `Apex/World/Standard` Meta-pass parity: detail albedo and alpha cutout are now represented during lightmapping instead of baking a solid base-only surface.
+- Aligned all twelve UPM packages, dependency pins, repository metadata, and Core HLSL version constants to `0.3.3`.
 
-The repository's hosted static CI still does not contain a licensed Unity editor, so the compiler audit runs when `ValidationProject` is opened or executed with Unity 2022.3.22f1.
+The hosted repository CI still does not contain a licensed Unity editor. The generated scene, compiler report, and runtime stress fixtures become active when `ValidationProject` is opened or run under Unity 2022.3.22f1.
 
 ## Compatibility truth
 
@@ -40,7 +42,7 @@ The PC Avatar and Toon shaders use Standard-compatible property names and the ex
 | `com.dazi.apex.fx` | Hologram and lit dissolve/cutout effects. |
 | `com.dazi.apex.screens` | Video panels and procedural LED walls. |
 | `com.dazi.apex.toon` | Toon/anime-style shading for PC materials and world objects. |
-| `com.dazi.apex.tools` | Compiler auditing, validation, profiles, variant control/reporting, fallback generation, diagnostics, and texture packing. |
+| `com.dazi.apex.tools` | Compiler auditing, stress-scene generation/manifests, validation, profiles, variant control/reporting, fallback generation, diagnostics, and texture packing. |
 | `com.dazi.apex.examples` | Importable quick-start materials and setup references. |
 
 ## Install from Git
@@ -55,7 +57,7 @@ Pin all installed Apex packages to the same branch or, preferably, the same exac
 
 ## Validation project
 
-Open `ValidationProject/` directly in Unity 2022.3.22f1, then use **Apex Validation > Build Scene And Validate**. Package Doctor now performs the synchronous shader compiler audit as part of full/batch validation and writes the compiler report under `Assets/ApexValidation/Generated/`. Batch mode is documented in [ValidationProject/README.md](ValidationProject/README.md).
+Open `ValidationProject/` directly in Unity 2022.3.22f1, then use **Apex Validation > Build Scene And Validate**. Package Doctor performs the synchronous compiler audit as part of full/batch validation. The validation run generates the stress scene, compiler report, and scene manifest under `Assets/ApexValidation/Generated/`. Batch mode is documented in [ValidationProject/README.md](ValidationProject/README.md).
 
 ## Reference
 
@@ -72,7 +74,7 @@ python3 scripts/validate_repo.py
 python3 scripts/build_release_archives.py
 ```
 
-Static validation is not a substitute for Unity shader compilation, VRChat SDK builds, stereo testing, or device profiling. Apex 0.3.2 adds the Unity-side compiler audit needed to begin closing that gap.
+Static validation is not a substitute for Unity shader compilation, VRChat SDK builds, stereo testing, or device profiling. Apex 0.3.3 makes the Unity-side stress scene and compiler audit substantially more representative, but target-runtime validation remains required.
 
 ## License
 
