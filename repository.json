@@ -2,7 +2,7 @@
   "name": "Apex Shader Ecosystem",
   "slug": "apex-shader-ecosystem",
   "owner": "DAZIxBREED",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "status": "pre-alpha implementation",
   "unity": "2022.3.22f1",
   "renderPipeline": "Built-in Render Pipeline",
