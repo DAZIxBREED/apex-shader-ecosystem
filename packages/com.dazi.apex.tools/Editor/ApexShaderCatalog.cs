@@ -29,7 +29,7 @@ namespace DAZI.Apex.Tools
             new ShaderContract("Apex/World/VertexBlendLite", "FORWARD_BASE", "FORWARD_ADD", "SHADOW_CASTER", "META"),
             new ShaderContract("Apex/Water/PoolLite", "FORWARD_BASE"),
             new ShaderContract("Apex/Water/OpaqueMobile", "FORWARD_BASE", "FORWARD_ADD"),
-            new ShaderContract("Apex/Fog/CardLite", "FOG_CARD"),
+            new ShaderContract("Apex/Fog/CardLite", "UNLIT_FOG"),
             new ShaderContract("Apex/FX/HologramLite", "HOLOGRAM"),
             new ShaderContract("Apex/FX/DissolveCutout", "FORWARD_BASE", "FORWARD_ADD", "SHADOW_CASTER", "META"),
             new ShaderContract("Apex/Screens/VideoPanelLite", "VIDEO_PANEL"),
