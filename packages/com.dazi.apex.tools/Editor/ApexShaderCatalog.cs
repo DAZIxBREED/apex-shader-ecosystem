@@ -23,7 +23,7 @@ namespace DAZI.Apex.Tools
 
         public static readonly ShaderContract[] RequiredShaders =
         {
-            new ShaderContract("Apex/Core/Debug", "DEBUG"),
+            new ShaderContract("Apex/Core/Debug", "FORWARD_BASE"),
             new ShaderContract("Apex/Avatar/Standard", "FORWARD_BASE", "FORWARD_ADD", "SHADOW_CASTER"),
             new ShaderContract("Apex/World/Standard", "FORWARD_BASE", "FORWARD_ADD", "SHADOW_CASTER", "META"),
             new ShaderContract("Apex/World/VertexBlendLite", "FORWARD_BASE", "FORWARD_ADD", "SHADOW_CASTER", "META"),
